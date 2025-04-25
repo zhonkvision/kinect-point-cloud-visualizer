@@ -1,11 +1,27 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import KinectVisualizer from '../components/KinectVisualizer';
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="w-full h-screen">
+      <Canvas
+        camera={{ position: [0, 0, 500], fov: 50, near: 1, far: 10000 }}
+        style={{ background: '#000' }}
+      >
+        <OrbitControls
+          enablePan={true}
+          enableZoom={true}
+          enableRotate={true}
+        />
+        <KinectVisualizer />
+      </Canvas>
+      <div className="fixed top-0 left-0 p-4 text-white text-sm">
+        <a href="https://threejs.org" target="_blank" rel="noopener" className="hover:text-blue-400">
+          three.js
+        </a>
+        {' - kinect'}
       </div>
     </div>
   );
