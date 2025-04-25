@@ -1,4 +1,3 @@
-
 import { useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -59,17 +58,7 @@ const KinectVisualizer = () => {
     video.crossOrigin = 'anonymous';
     video.playsInline = true;
 
-    const sources = [
-      { src: '/kinect.mp4', type: 'video/mp4' },
-      { src: '/kinect.webm', type: 'video/webm' }
-    ];
-
-    sources.forEach(source => {
-      const sourceEl = document.createElement('source');
-      sourceEl.src = source.src;
-      sourceEl.type = source.type;
-      video.appendChild(sourceEl);
-    });
+    video.src = 'https://bczcghpwiasggfmutqrd.supabase.co/storage/v1/object/public/pointcloudexp//ezgif.com-gif-to-mp4-converter%20(3)%20(24).mp4';
 
     const texture = new THREE.VideoTexture(video);
     texture.minFilter = THREE.NearestFilter;
@@ -90,7 +79,6 @@ const KinectVisualizer = () => {
     };
   }, [uniforms]);
 
-  // Create vertices for point cloud
   const createVertices = () => {
     const width = uniforms.width.value;
     const height = uniforms.height.value;
