@@ -41,9 +41,9 @@ const fragmentShader = `
 `;
 
 const KinectVisualizer = () => {
-  const meshRef = useRef<THREE.Points>(null);
+  const pointsRef = useRef();
   const [uniforms] = useState({
-    map: { value: null as THREE.Texture | null },
+    map: { value: null },
     width: { value: 640 },
     height: { value: 480 },
     nearClipping: { value: 850 },
@@ -83,20 +83,27 @@ const KinectVisualizer = () => {
     };
   }, [uniforms]);
 
+  // Create vertices for point cloud
+  const createVertices = () => {
+    const width = uniforms.width.value;
+    const height = uniforms.height.value;
+    const vertices = new Float32Array(width * height * 3);
+    
+    for (let i = 0, j = 0; i < vertices.length; i += 3, j++) {
+      vertices[i] = j % width;
+      vertices[i + 1] = Math.floor(j / width);
+    }
+    
+    return vertices;
+  };
+
   return (
-    <points ref={meshRef}>
+    <points ref={pointsRef}>
       <bufferGeometry>
-        <float32BufferAttribute
+        <bufferAttribute
           attach="attributes-position"
           count={uniforms.width.value * uniforms.height.value}
-          array={(() => {
-            const vertices = new Float32Array(uniforms.width.value * uniforms.height.value * 3);
-            for (let i = 0, j = 0; i < vertices.length; i += 3, j++) {
-              vertices[i] = j % uniforms.width.value;
-              vertices[i + 1] = Math.floor(j / uniforms.width.value);
-            }
-            return vertices;
-          })()}
+          array={createVertices()}
           itemSize={3}
         />
       </bufferGeometry>
