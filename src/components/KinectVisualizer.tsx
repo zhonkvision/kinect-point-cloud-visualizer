@@ -59,10 +59,17 @@ const KinectVisualizer = () => {
     video.crossOrigin = 'anonymous';
     video.playsInline = true;
 
-    const source = document.createElement('source');
-    source.src = '/kinect.webm';
-    source.type = 'video/webm';
-    video.appendChild(source);
+    const sources = [
+      { src: '/kinect.mp4', type: 'video/mp4' },
+      { src: '/kinect.webm', type: 'video/webm' }
+    ];
+
+    sources.forEach(source => {
+      const sourceEl = document.createElement('source');
+      sourceEl.src = source.src;
+      sourceEl.type = source.type;
+      video.appendChild(sourceEl);
+    });
 
     const texture = new THREE.VideoTexture(video);
     texture.minFilter = THREE.NearestFilter;
