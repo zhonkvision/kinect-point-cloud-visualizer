@@ -83,7 +83,7 @@ const KinectVisualizer = () => {
     video.crossOrigin = 'anonymous';
     video.playsInline = true;
 
-    video.src = 'https://bczcghpwiasggfmutqrd.supabase.co/storage/v1/object/public/pointcloudexp//ezgif.com-gif-to-mp4-converter%20(3)%20(24).mp4';
+    video.src = 'https://bczcghpwiasggfmutqrd.supabase.co/storage/v1/object/public/pointcloudexp//AD_00002.mp4';
 
     const texture = new THREE.VideoTexture(video);
     texture.minFilter = THREE.NearestFilter;
