@@ -2,19 +2,21 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import KinectVisualizer from '../components/KinectVisualizer';
+import StarBackground from '../components/StarBackground';
 
 const Index = () => {
   return (
     <div className="w-full h-screen">
       <Canvas
         camera={{ position: [0, 0, 500], fov: 50, near: 1, far: 10000 }}
-        style={{ background: '#000' }}
+        style={{ background: '#000022' }}
       >
         <OrbitControls
           enablePan={true}
           enableZoom={true}
           enableRotate={true}
         />
+        <StarBackground />
         <KinectVisualizer />
       </Canvas>
       <div className="fixed top-0 left-0 p-4 text-white text-sm">
