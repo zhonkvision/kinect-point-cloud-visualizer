@@ -10,7 +10,7 @@ const Index = () => {
     <div className="w-full h-screen">
       <Canvas
         camera={{ position: [0, 0, 500], fov: 50, near: 1, far: 10000 }}
-        style={{ background: '#000022' }}
+        style={{ background: '#000000' }}
       >
         <OrbitControls
           enablePan={true}

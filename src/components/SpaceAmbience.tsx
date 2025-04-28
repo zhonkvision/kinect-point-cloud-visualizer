@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 
 const SpaceAmbience = () => {
@@ -8,6 +7,7 @@ const SpaceAmbience = () => {
   useEffect(() => {
     const setupAudio = async () => {
       audioContextRef.current = new AudioContext();
+      (window as any).globalAudioContext = audioContextRef.current;
       const ctx = audioContextRef.current;
 
       // Create reverb and delay effects
@@ -30,15 +30,15 @@ const SpaceAmbience = () => {
       }
       reverb.buffer = impulse;
 
-      // Space drone function
+      // Space drone function with enhanced frequencies
       const createDrone = () => {
         const osc = ctx.createOscillator();
         const gainNode = ctx.createGain();
-        const notes = [41.20, 36.71, 49.00, 55.00]; // E1, D2, G1, A1
+        const notes = [41.20, 36.71, 49.00, 55.00, 82.40, 73.42]; // Added higher octaves
         
         osc.type = 'sine';
         osc.frequency.value = notes[Math.floor(Math.random() * notes.length)];
-        gainNode.gain.value = 0.2;
+        gainNode.gain.value = 0.15; // Slightly reduced volume
 
         osc.connect(gainNode);
         gainNode.connect(reverb);
@@ -51,15 +51,15 @@ const SpaceAmbience = () => {
         }, 100);
       };
 
-      // Alien signal beeps
+      // Enhanced alien signal beeps
       const createBeep = () => {
         const osc = ctx.createOscillator();
         const gainNode = ctx.createGain();
         const panner = ctx.createStereoPanner();
         
         osc.type = 'sine';
-        osc.frequency.value = [80, 100, 120][Math.floor(Math.random() * 3)];
-        gainNode.gain.value = 0.1;
+        osc.frequency.value = [80, 100, 120, 160, 200][Math.floor(Math.random() * 5)]; // Added higher frequencies
+        gainNode.gain.value = 0.08; // Reduced volume for better mix
         panner.pan.value = Math.random() * 2 - 1;
 
         osc.connect(gainNode);
@@ -97,6 +97,7 @@ const SpaceAmbience = () => {
         clearInterval(droneInterval);
         clearInterval(beepInterval);
         ctx.close();
+        (window as any).globalAudioContext = null;
       };
     };
 
@@ -105,6 +106,7 @@ const SpaceAmbience = () => {
     return () => {
       if (audioContextRef.current) {
         audioContextRef.current.close();
+        (window as any).globalAudioContext = null;
       }
       isPlayingRef.current = false;
     };
