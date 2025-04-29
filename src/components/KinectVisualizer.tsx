@@ -61,8 +61,15 @@ const fragmentShader = `
   }
 `;
 
-const KinectVisualizer = () => {
-  const pointsRef = useRef();
+interface KinectVisualizerProps {
+  videoUrl?: string;
+  captureCanvas?: (canvas: HTMLCanvasElement | null) => void;
+}
+
+const KinectVisualizer = ({ videoUrl, captureCanvas }: KinectVisualizerProps) => {
+  const pointsRef = useRef<THREE.Points>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [uniforms] = useState({
     map: { value: null },
     width: { value: 640 },
@@ -82,8 +89,9 @@ const KinectVisualizer = () => {
     video.muted = true;
     video.crossOrigin = 'anonymous';
     video.playsInline = true;
+    videoRef.current = video;
 
-    video.src = 'https://bczcghpwiasggfmutqrd.supabase.co/storage/v1/object/public/pointcloudexp//AD_00002.mp4';
+    video.src = videoUrl || 'https://bczcghpwiasggfmutqrd.supabase.co/storage/v1/object/public/pointcloudexp//AD_00002.mp4';
 
     const texture = new THREE.VideoTexture(video);
     texture.minFilter = THREE.NearestFilter;
@@ -107,8 +115,17 @@ const KinectVisualizer = () => {
     return () => {
       gui.destroy();
       video.pause();
+      if (texture) texture.dispose();
     };
-  }, [uniforms]);
+  }, [videoUrl, uniforms]);
+
+  // Pass the WebGL canvas to the parent component for video capture
+  useFrame((state) => {
+    if (captureCanvas && state.gl.domElement && !rendererRef.current) {
+      rendererRef.current = state.gl;
+      captureCanvas(state.gl.domElement);
+    }
+  });
 
   const createVertices = () => {
     const width = uniforms.width.value;

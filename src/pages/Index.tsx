@@ -1,11 +1,24 @@
 
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
+import { useState, useRef } from 'react';
 import KinectVisualizer from '../components/KinectVisualizer';
 import StarBackground from '../components/StarBackground';
 import SpaceAmbience from '../components/SpaceAmbience';
+import VideoUploader from '../components/VideoUploader';
 
 const Index = () => {
+  const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  const handleVideoChange = (url: string) => {
+    setVideoUrl(url);
+  };
+
+  const handleCanvasCapture = (canvas: HTMLCanvasElement | null) => {
+    canvasRef.current = canvas;
+  };
+
   return (
     <div className="w-full h-screen bg-black">
       <Canvas
@@ -18,14 +31,15 @@ const Index = () => {
           enableRotate={true}
         />
         <StarBackground />
-        <KinectVisualizer />
+        <KinectVisualizer videoUrl={videoUrl} captureCanvas={handleCanvasCapture} />
       </Canvas>
       <SpaceAmbience />
+      <VideoUploader onVideoChange={handleVideoChange} canvasRef={canvasRef} />
       <div className="fixed top-0 left-0 p-4 text-white text-sm">
         <a href="https://threejs.org" target="_blank" rel="noopener" className="hover:text-blue-400">
           three.js
         </a>
-        {' - kinect'}
+        {' - kinect visualizer'}
       </div>
     </div>
   );
