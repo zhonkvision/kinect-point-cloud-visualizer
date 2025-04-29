@@ -78,7 +78,9 @@ const SpaceAmbience = () => {
           const panner = ctx.createStereoPanner();
           
           // Choose frequencies from our calming ratios
-          osc.type = ['sine', 'triangle'][Math.floor(Math.random() * 2)]; // Gentler waveforms
+          // Fix: Use a valid OscillatorType instead of string
+          const oscillatorTypes: OscillatorType[] = ['sine', 'triangle'];
+          osc.type = oscillatorTypes[Math.floor(Math.random() * oscillatorTypes.length)];
           osc.frequency.value = frequencies[Math.floor(Math.random() * frequencies.length)];
           
           // Very gentle volume
