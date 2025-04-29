@@ -2,7 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Video, Upload, Download } from 'lucide-react';
+import { Video, Upload, Download, FileVideo } from 'lucide-react';
+import { toast } from "@/hooks/use-toast";
 
 interface VideoUploaderProps {
   onVideoChange: (url: string) => void;
@@ -14,6 +15,7 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoChange, canvasRef 
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -21,6 +23,17 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoChange, canvasRef 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
+      
+      // Validate file type
+      if (!file.type.includes('video/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload an MP4 or WebM video file",
+          variant: "destructive"
+        });
+        return;
+      }
+
       setVideoFile(file);
       
       // Create object URL for the uploaded video
@@ -30,30 +43,64 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoChange, canvasRef 
       
       // Reset recording state
       setRecordedChunks([]);
+
+      toast({
+        title: "Video uploaded",
+        description: "Your video is now ready for processing",
+      });
     }
   };
 
   const startCapture = () => {
     if (!canvasRef.current) {
-      console.error('Canvas reference is not available');
+      toast({
+        title: "Error",
+        description: "Canvas reference is not available",
+        variant: "destructive"
+      });
       return;
     }
 
     const canvas = canvasRef.current;
-    const stream = canvas.captureStream(30); // 30fps
+    setIsProcessing(true);
     
-    mediaRecorderRef.current = new MediaRecorder(stream, {
-      mimeType: 'video/webm;codecs=vp9'
-    });
-    
-    mediaRecorderRef.current.ondataavailable = (event) => {
-      if (event.data && event.data.size > 0) {
-        setRecordedChunks((prev) => [...prev, event.data]);
-      }
-    };
-    
-    mediaRecorderRef.current.start();
-    setIsRecording(true);
+    try {
+      const stream = canvas.captureStream(30); // 30fps
+      
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: 'video/webm;codecs=vp9'
+      });
+      
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          setRecordedChunks((prev) => [...prev, event.data]);
+        }
+      };
+
+      mediaRecorderRef.current.onstop = () => {
+        setIsProcessing(false);
+        toast({
+          title: "Recording complete",
+          description: "Your processed video is ready for download",
+        });
+      };
+      
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+      
+      toast({
+        title: "Recording started",
+        description: "Processing your video...",
+      });
+    } catch (error) {
+      setIsProcessing(false);
+      toast({
+        title: "Recording failed",
+        description: "There was an error starting the recording",
+        variant: "destructive"
+      });
+      console.error("Error starting recording:", error);
+    }
   };
 
   const stopCapture = () => {
@@ -64,17 +111,38 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoChange, canvasRef 
   };
 
   const downloadVideo = () => {
-    if (recordedChunks.length === 0) return;
+    if (recordedChunks.length === 0) {
+      toast({
+        title: "No recording available",
+        description: "Please record a processed video first",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    const blob = new Blob(recordedChunks, { type: 'video/webm' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'kinect-processed-video.webm';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    try {
+      const blob = new Blob(recordedChunks, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'kinect-processed-video.webm';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download started",
+        description: "Your processed video is downloading",
+      });
+    } catch (error) {
+      toast({
+        title: "Download failed",
+        description: "There was an error downloading the video",
+        variant: "destructive"
+      });
+      console.error("Error downloading video:", error);
+    }
   };
 
   const triggerFileInput = () => {
@@ -106,6 +174,7 @@ const VideoUploader: React.FC<VideoUploaderProps> = ({ onVideoChange, canvasRef 
               onClick={startCapture} 
               variant="outline" 
               className="flex items-center gap-2"
+              disabled={isProcessing}
             >
               <Video size={18} />
               Record Output

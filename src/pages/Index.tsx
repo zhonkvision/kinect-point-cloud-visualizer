@@ -6,6 +6,7 @@ import KinectVisualizer from '../components/KinectVisualizer';
 import StarBackground from '../components/StarBackground';
 import SpaceAmbience from '../components/SpaceAmbience';
 import VideoUploader from '../components/VideoUploader';
+import { Toaster } from "@/components/ui/toaster";
 
 const Index = () => {
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
@@ -41,6 +42,7 @@ const Index = () => {
         </a>
         {' - kinect visualizer'}
       </div>
+      <Toaster />
     </div>
   );
 };
