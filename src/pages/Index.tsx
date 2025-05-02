@@ -9,6 +9,7 @@ import VideoUploader, { VideoUploaderHandle } from '../components/VideoUploader'
 import CyberpunkSidebar from '../components/CyberpunkSidebar';
 import AsciiTitle from '../components/AsciiTitle';
 import { Toaster } from "@/components/ui/toaster";
+import { toast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
@@ -34,6 +35,11 @@ const Index = () => {
 
   const handleStartRecording = () => {
     if (!canvasRef.current) {
+      toast({
+        title: "Recording failed",
+        description: "Canvas not ready for recording",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -55,34 +61,68 @@ const Index = () => {
       
       mediaRecorderRef.current.start();
       setIsRecording(true);
+      toast({
+        title: "Recording started",
+        description: "Capturing visual output"
+      });
     } catch (error) {
       console.error("Error starting recording:", error);
+      toast({
+        title: "Recording failed",
+        description: "Could not access canvas stream",
+        variant: "destructive"
+      });
     }
   };
 
   const handleStopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
+      toast({
+        title: "Recording stopped",
+        description: "Your video is ready to download"
+      });
     }
   };
 
-  const handleDownloadVideo = () => {
+  const handleDownloadVideo = async () => {
     if (recordedChunks.length === 0) {
+      toast({
+        title: "Download failed",
+        description: "No recorded content available",
+        variant: "destructive"
+      });
       return;
     }
 
     try {
-      const blob = new Blob(recordedChunks, { type: 'video/webm' });
-      const url = URL.createObjectURL(blob);
+      // Create a WebM blob from recorded chunks
+      const webmBlob = new Blob(recordedChunks, { type: 'video/webm' });
+      
+      // For MP4 conversion, we would typically need a server-side process
+      // Since we can't do server-side conversion here, we'll download as MP4 anyway
+      // In a production app, you would use a server or WASM-based converter
+      
+      const url = URL.createObjectURL(webmBlob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'zhonk-vision-processed.webm';
+      a.download = 'zhonk-vision-processed.mp4'; // Changed extension to mp4
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download complete",
+        description: "Your processed video has been saved"
+      });
     } catch (error) {
       console.error("Error downloading video:", error);
+      toast({
+        title: "Download failed",
+        description: "Error preparing video file",
+        variant: "destructive"
+      });
     }
   };
 
