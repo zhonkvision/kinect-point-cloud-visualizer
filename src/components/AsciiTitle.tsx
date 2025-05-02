@@ -49,7 +49,7 @@ const AsciiTitle: React.FC = () => {
 
   return (
     <div className="fixed top-0 left-1/2 transform -translate-x-1/2 p-4 z-10">
-      <pre className="text-cyan-400 font-mono text-xs sm:text-sm md:text-base whitespace-pre leading-none">
+      <pre className="text-cyan-400 font-mono text-[6pt] whitespace-pre leading-none">
         {asciiFrames[frame]}
       </pre>
     </div>
