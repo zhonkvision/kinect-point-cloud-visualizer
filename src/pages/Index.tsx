@@ -106,7 +106,12 @@ const Index = () => {
           enableZoom={true}
           enableRotate={true}
           autoRotate={autoRotate}
-          autoRotateSpeed={2.0}
+          autoRotateSpeed={1.5}
+          target={[0, 0, 0]}
+          maxPolarAngle={Math.PI / 1.5}
+          minPolarAngle={Math.PI / 3}
+          maxDistance={1000}
+          minDistance={300}
         />
         <StarBackground />
         <KinectVisualizer videoUrl={videoUrl} captureCanvas={handleCanvasCapture} />
