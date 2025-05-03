@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Upload, Video, Download, Menu } from "lucide-react";
+import { ChevronLeft, ChevronRight, Upload, Video, Download, RotateCcw } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +10,9 @@ interface CyberpunkSidebarProps {
   onRecordClick: () => void;
   onStopRecordClick: () => void;
   onDownloadClick: () => void;
+  onToggleAutoRotate: () => void;
   isRecording: boolean;
+  isAutoRotating: boolean;
   canDownload: boolean;
 }
 
@@ -19,7 +21,9 @@ const CyberpunkSidebar: React.FC<CyberpunkSidebarProps> = ({
   onRecordClick,
   onStopRecordClick,
   onDownloadClick,
+  onToggleAutoRotate,
   isRecording,
+  isAutoRotating,
   canDownload
 }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -119,6 +123,32 @@ const CyberpunkSidebar: React.FC<CyberpunkSidebarProps> = ({
             <Download size={collapsed ? 24 : 18} />
             {!collapsed && <span className="ml-2">Download Video</span>}
           </Button>
+          
+          {!isAutoRotating ? (
+            <Button
+              variant="outline"
+              className={cn(
+                "w-full border-cyan-500/50 bg-purple-900/20 text-cyan-300 hover:bg-cyan-900/30 hover:text-cyan-100",
+                collapsed ? "justify-center p-2" : ""
+              )}
+              onClick={onToggleAutoRotate}
+            >
+              <RotateCcw size={collapsed ? 24 : 18} />
+              {!collapsed && <span className="ml-2">Auto-Rotate</span>}
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              className={cn(
+                "w-full border-orange-500/50 bg-orange-900/20 text-orange-300 hover:bg-orange-900/30 hover:text-orange-100",
+                collapsed ? "justify-center p-2" : ""
+              )}
+              onClick={onToggleAutoRotate}
+            >
+              <RotateCcw size={collapsed ? 24 : 18} />
+              {!collapsed && <span className="ml-2">Stop Rotation</span>}
+            </Button>
+          )}
         </div>
       </div>
 

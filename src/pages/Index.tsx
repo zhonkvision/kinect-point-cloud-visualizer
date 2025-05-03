@@ -17,6 +17,7 @@ const Index = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const [autoRotate, setAutoRotate] = useState(false);
 
   const handleVideoChange = (url: string) => {
     setVideoUrl(url);
@@ -76,7 +77,7 @@ const Index = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'zhonk-vision-processed.webm';
+      a.download = 'zhonk-vision-processed.mp4';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -84,6 +85,10 @@ const Index = () => {
     } catch (error) {
       console.error("Error downloading video:", error);
     }
+  };
+
+  const handleToggleAutoRotate = () => {
+    setAutoRotate(!autoRotate);
   };
 
   return (
@@ -100,6 +105,8 @@ const Index = () => {
           enablePan={true}
           enableZoom={true}
           enableRotate={true}
+          autoRotate={autoRotate}
+          autoRotateSpeed={2.0}
         />
         <StarBackground />
         <KinectVisualizer videoUrl={videoUrl} captureCanvas={handleCanvasCapture} />
@@ -114,7 +121,9 @@ const Index = () => {
         onRecordClick={handleStartRecording}
         onStopRecordClick={handleStopRecording}
         onDownloadClick={handleDownloadVideo}
+        onToggleAutoRotate={handleToggleAutoRotate}
         isRecording={isRecording}
+        isAutoRotating={autoRotate}
         canDownload={recordedChunks.length > 0}
       />
       
