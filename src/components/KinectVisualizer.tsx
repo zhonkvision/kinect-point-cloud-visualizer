@@ -70,6 +70,7 @@ const KinectVisualizer = ({ videoUrl, captureCanvas }: KinectVisualizerProps) =>
   const pointsRef = useRef<THREE.Points>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const textureRef = useRef<THREE.VideoTexture | null>(null);
   const [uniforms] = useState({
     map: { value: null },
     width: { value: 640 },
@@ -83,21 +84,8 @@ const KinectVisualizer = ({ videoUrl, captureCanvas }: KinectVisualizerProps) =>
     hueShift: { value: 0 }
   });
 
+  // Create a GUI panel for adjusting effects
   useEffect(() => {
-    const video = document.createElement('video');
-    video.loop = true;
-    video.muted = true;
-    video.crossOrigin = 'anonymous';
-    video.playsInline = true;
-    videoRef.current = video;
-
-    video.src = videoUrl || 'https://bczcghpwiasggfmutqrd.supabase.co/storage/v1/object/public/pointcloudexp//AD_00002.mp4';
-
-    const texture = new THREE.VideoTexture(video);
-    texture.minFilter = THREE.NearestFilter;
-    texture.generateMipmaps = false;
-    uniforms.map.value = texture;
-
     const gui = new GUI();
     gui.add(uniforms.nearClipping, 'value', 1, 10000, 1.0).name('nearClipping');
     gui.add(uniforms.farClipping, 'value', 1, 10000, 1.0).name('farClipping');
@@ -110,20 +98,77 @@ const KinectVisualizer = ({ videoUrl, captureCanvas }: KinectVisualizerProps) =>
         uniforms.colorTint.value.setStyle(value);
       });
 
-    video.play();
-
     return () => {
       gui.destroy();
-      video.pause();
-      if (texture) texture.dispose();
     };
-  }, [videoUrl, uniforms]);
+  }, [uniforms]);
+
+  // Handle video source changes
+  useEffect(() => {
+    if (textureRef.current) {
+      textureRef.current.dispose();
+      textureRef.current = null;
+    }
+    
+    // Create or update video element
+    if (!videoRef.current) {
+      const video = document.createElement('video');
+      video.loop = true;
+      video.muted = true;
+      video.crossOrigin = 'anonymous';
+      video.playsInline = true;
+      videoRef.current = video;
+    }
+    
+    if (videoUrl) {
+      const video = videoRef.current;
+      video.src = videoUrl;
+      video.load();
+      
+      // Create new texture with this video
+      const texture = new THREE.VideoTexture(video);
+      texture.minFilter = THREE.NearestFilter;
+      texture.generateMipmaps = false;
+      textureRef.current = texture;
+      uniforms.map.value = texture;
+      
+      video.play().catch(err => {
+        console.error("Error playing video:", err);
+      });
+    } else {
+      // Default video if none provided
+      const video = videoRef.current;
+      video.src = 'https://bczcghpwiasggfmutqrd.supabase.co/storage/v1/object/public/pointcloudexp//AD_00002.mp4';
+      video.load();
+      
+      const texture = new THREE.VideoTexture(video);
+      texture.minFilter = THREE.NearestFilter;
+      texture.generateMipmaps = false;
+      textureRef.current = texture;
+      uniforms.map.value = texture;
+      
+      video.play().catch(err => {
+        console.error("Error playing default video:", err);
+      });
+    }
+    
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.pause();
+      }
+    };
+  }, [videoUrl, uniforms.map]);
 
   // Pass the WebGL canvas to the parent component for video capture
   useFrame((state) => {
     if (captureCanvas && state.gl.domElement && !rendererRef.current) {
       rendererRef.current = state.gl;
       captureCanvas(state.gl.domElement);
+    }
+    
+    // For webcam input, we need to ensure texture updates every frame
+    if (textureRef.current && videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
+      textureRef.current.needsUpdate = true;
     }
   });
 

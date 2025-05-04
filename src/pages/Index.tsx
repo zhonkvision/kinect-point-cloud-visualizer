@@ -6,21 +6,25 @@ import KinectVisualizer from '../components/KinectVisualizer';
 import StarBackground from '../components/StarBackground';
 import SpaceAmbience from '../components/SpaceAmbience';
 import VideoUploader, { VideoUploaderHandle } from '../components/VideoUploader';
+import WebcamInput from '../components/WebcamInput';
 import CyberpunkSidebar from '../components/CyberpunkSidebar';
 import AsciiTitle from '../components/AsciiTitle';
 import { Toaster } from "@/components/ui/toaster";
 
 const Index = () => {
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
+  const [isWebcamActive, setIsWebcamActive] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoUploaderRef = useRef<VideoUploaderHandle>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const [autoRotate, setAutoRotate] = useState(false);
+  const webcamVideoRef = useRef<HTMLVideoElement | null>(null);
 
   const handleVideoChange = (url: string) => {
     setVideoUrl(url);
+    setIsWebcamActive(false);
   };
 
   const handleCanvasCapture = (canvas: HTMLCanvasElement | null) => {
@@ -91,6 +95,48 @@ const Index = () => {
     setAutoRotate(!autoRotate);
   };
 
+  const handleToggleWebcam = () => {
+    setIsWebcamActive(!isWebcamActive);
+  };
+
+  const handleWebcamStart = (videoElement: HTMLVideoElement) => {
+    webcamVideoRef.current = videoElement;
+    // Create a video URL from the webcam feed
+    const canvas = document.createElement('canvas');
+    canvas.width = 640;
+    canvas.height = 480;
+    const ctx = canvas.getContext('2d');
+    
+    // Create a URL for the webcam video element
+    const videoProcessor = () => {
+      if (ctx && videoElement && videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        if (!videoUrl) {
+          // Only create a new blob if we don't already have one
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              setVideoUrl(url);
+            }
+          }, 'image/jpeg', 0.8);
+        }
+      }
+      if (isWebcamActive) {
+        requestAnimationFrame(videoProcessor);
+      }
+    };
+    
+    videoProcessor();
+  };
+
+  const handleWebcamStop = () => {
+    setIsWebcamActive(false);
+    if (videoUrl && videoUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(videoUrl);
+    }
+    setVideoUrl(undefined);
+  };
+
   return (
     <div className="w-full h-screen bg-black overflow-hidden relative">
       {/* Cyberpunk scanline effect */}
@@ -127,8 +173,10 @@ const Index = () => {
         onStopRecordClick={handleStopRecording}
         onDownloadClick={handleDownloadVideo}
         onToggleAutoRotate={handleToggleAutoRotate}
+        onToggleWebcam={handleToggleWebcam}
         isRecording={isRecording}
         isAutoRotating={autoRotate}
+        isWebcamActive={isWebcamActive}
         canDownload={recordedChunks.length > 0}
       />
       
@@ -137,6 +185,13 @@ const Index = () => {
         onVideoChange={handleVideoChange} 
         canvasRef={canvasRef} 
       />
+
+      {isWebcamActive && (
+        <WebcamInput
+          onWebcamStart={handleWebcamStart}
+          onWebcamStop={handleWebcamStop}
+        />
+      )}
       
       <Toaster />
     </div>

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Upload, Video, Download, RotateCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Upload, Video, Download, RotateCcw, Webcam } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 
@@ -11,8 +11,10 @@ interface CyberpunkSidebarProps {
   onStopRecordClick: () => void;
   onDownloadClick: () => void;
   onToggleAutoRotate: () => void;
+  onToggleWebcam: () => void;
   isRecording: boolean;
   isAutoRotating: boolean;
+  isWebcamActive: boolean;
   canDownload: boolean;
 }
 
@@ -22,8 +24,10 @@ const CyberpunkSidebar: React.FC<CyberpunkSidebarProps> = ({
   onStopRecordClick,
   onDownloadClick,
   onToggleAutoRotate,
+  onToggleWebcam,
   isRecording,
   isAutoRotating,
+  isWebcamActive,
   canDownload
 }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -83,6 +87,32 @@ const CyberpunkSidebar: React.FC<CyberpunkSidebarProps> = ({
             <Upload size={collapsed ? 24 : 18} />
             {!collapsed && <span className="ml-2">Upload Video</span>}
           </Button>
+          
+          {isWebcamActive ? (
+            <Button
+              variant="outline"
+              className={cn(
+                "w-full border-red-500/50 bg-red-900/20 text-red-300 hover:bg-red-900/30 hover:text-red-100",
+                collapsed ? "justify-center p-2" : ""
+              )}
+              onClick={onToggleWebcam}
+            >
+              <Webcam size={collapsed ? 24 : 18} />
+              {!collapsed && <span className="ml-2">Stop Webcam</span>}
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              className={cn(
+                "w-full border-green-500/50 bg-purple-900/20 text-green-300 hover:bg-green-900/30 hover:text-green-100",
+                collapsed ? "justify-center p-2" : ""
+              )}
+              onClick={onToggleWebcam}
+            >
+              <Webcam size={collapsed ? 24 : 18} />
+              {!collapsed && <span className="ml-2">Start Webcam</span>}
+            </Button>
+          )}
           
           {!isRecording ? (
             <Button
