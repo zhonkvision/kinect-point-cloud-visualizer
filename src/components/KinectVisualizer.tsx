@@ -64,13 +64,17 @@ const fragmentShader = `
 interface KinectVisualizerProps {
   videoUrl?: string;
   captureCanvas?: (canvas: HTMLCanvasElement | null) => void;
+  useDefaultVideo?: boolean;
 }
 
-const KinectVisualizer = ({ videoUrl, captureCanvas }: KinectVisualizerProps) => {
+const KinectVisualizer = ({ videoUrl, captureCanvas, useDefaultVideo = true }: KinectVisualizerProps) => {
   const pointsRef = useRef<THREE.Points>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const textureRef = useRef<THREE.VideoTexture | null>(null);
+  const defaultVideoURL = 'https://bczcghpwiasggfmutqrd.supabase.co/storage/v1/object/public/pointcloudexp//AD_00002.mp4';
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  
   const [uniforms] = useState({
     map: { value: null },
     width: { value: 640 },
@@ -103,14 +107,8 @@ const KinectVisualizer = ({ videoUrl, captureCanvas }: KinectVisualizerProps) =>
     };
   }, [uniforms]);
 
-  // Handle video source changes
-  useEffect(() => {
-    if (textureRef.current) {
-      textureRef.current.dispose();
-      textureRef.current = null;
-    }
-    
-    // Create or update video element
+  // Create or get video element when needed
+  const getOrCreateVideoElement = () => {
     if (!videoRef.current) {
       const video = document.createElement('video');
       video.loop = true;
@@ -119,45 +117,65 @@ const KinectVisualizer = ({ videoUrl, captureCanvas }: KinectVisualizerProps) =>
       video.playsInline = true;
       videoRef.current = video;
     }
-    
-    if (videoUrl) {
-      const video = videoRef.current;
-      video.src = videoUrl;
-      video.load();
-      
-      // Create new texture with this video
-      const texture = new THREE.VideoTexture(video);
-      texture.minFilter = THREE.NearestFilter;
-      texture.generateMipmaps = false;
-      textureRef.current = texture;
-      uniforms.map.value = texture;
-      
-      video.play().catch(err => {
-        console.error("Error playing video:", err);
-      });
-    } else {
-      // Default video if none provided
-      const video = videoRef.current;
-      video.src = 'https://bczcghpwiasggfmutqrd.supabase.co/storage/v1/object/public/pointcloudexp//AD_00002.mp4';
-      video.load();
-      
-      const texture = new THREE.VideoTexture(video);
-      texture.minFilter = THREE.NearestFilter;
-      texture.generateMipmaps = false;
-      textureRef.current = texture;
-      uniforms.map.value = texture;
-      
-      video.play().catch(err => {
-        console.error("Error playing default video:", err);
-      });
+    return videoRef.current;
+  };
+
+  // Handle video source changes
+  useEffect(() => {
+    // First cleanup any existing video texture
+    if (textureRef.current) {
+      textureRef.current.dispose();
+      textureRef.current = null;
     }
     
+    // Clean up current video
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.removeAttribute('src');
+      videoRef.current.load();
+    }
+    
+    // Get or create video element
+    const video = getOrCreateVideoElement();
+    
+    // Determine which video source to use
+    const sourceUrl = videoUrl || (useDefaultVideo ? defaultVideoURL : null);
+    
+    if (sourceUrl) {
+      // Set video source
+      video.src = sourceUrl;
+      video.load();
+      setVideoLoaded(false);
+      
+      // Create texture when video can play
+      const handleCanPlay = () => {
+        const texture = new THREE.VideoTexture(video);
+        texture.minFilter = THREE.NearestFilter;
+        texture.generateMipmaps = false;
+        textureRef.current = texture;
+        uniforms.map.value = texture;
+        setVideoLoaded(true);
+        
+        // Start playback
+        video.play().catch(err => {
+          console.error("Error playing video:", err);
+        });
+        
+        // Remove event listener
+        video.removeEventListener('canplay', handleCanPlay);
+      };
+      
+      // Listen for when video can play
+      video.addEventListener('canplay', handleCanPlay);
+    }
+    
+    // Cleanup function
     return () => {
       if (videoRef.current) {
         videoRef.current.pause();
       }
     };
-  }, [videoUrl, uniforms.map]);
+  }, [videoUrl, useDefaultVideo, uniforms.map]);
 
   // Pass the WebGL canvas to the parent component for video capture
   useFrame((state) => {

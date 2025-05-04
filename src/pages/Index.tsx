@@ -1,7 +1,6 @@
-
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import KinectVisualizer from '../components/KinectVisualizer';
 import StarBackground from '../components/StarBackground';
 import SpaceAmbience from '../components/SpaceAmbience';
@@ -21,10 +20,32 @@ const Index = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const [autoRotate, setAutoRotate] = useState(false);
   const webcamVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [defaultVideoActive, setDefaultVideoActive] = useState(true);
+
+  // Clear previous media if switching sources
+  useEffect(() => {
+    if (isWebcamActive && videoUrl && defaultVideoActive) {
+      // If switching to webcam and a video URL exists, revoke it if it's a blob URL
+      if (videoUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(videoUrl);
+      }
+      setDefaultVideoActive(false);
+    }
+  }, [isWebcamActive, videoUrl, defaultVideoActive]);
 
   const handleVideoChange = (url: string) => {
+    // If webcam is active, stop it first
+    if (isWebcamActive) {
+      setIsWebcamActive(false);
+    }
+    
+    // Clear previous URL if it was a blob
+    if (videoUrl && videoUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(videoUrl);
+    }
+    
     setVideoUrl(url);
-    setIsWebcamActive(false);
+    setDefaultVideoActive(true);
   };
 
   const handleCanvasCapture = (canvas: HTMLCanvasElement | null) => {
@@ -96,23 +117,36 @@ const Index = () => {
   };
 
   const handleToggleWebcam = () => {
-    setIsWebcamActive(!isWebcamActive);
+    if (isWebcamActive) {
+      // If webcam is active, stopping it will revert to default video
+      setIsWebcamActive(false);
+      setDefaultVideoActive(true);
+      
+      // Set to undefined to trigger default video loading in KinectVisualizer
+      setVideoUrl(undefined);
+    } else {
+      // Otherwise, activate webcam
+      setDefaultVideoActive(false);
+      setIsWebcamActive(true);
+    }
   };
 
   const handleWebcamStart = (videoElement: HTMLVideoElement) => {
     webcamVideoRef.current = videoElement;
-    // Create a video URL from the webcam feed
+    
+    // Create a video processor for the webcam feed
     const canvas = document.createElement('canvas');
     canvas.width = 640;
     canvas.height = 480;
     const ctx = canvas.getContext('2d');
     
-    // Create a URL for the webcam video element
+    // Process video frames
     const videoProcessor = () => {
       if (ctx && videoElement && videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
         ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        
+        // Create a blob URL only once
         if (!videoUrl) {
-          // Only create a new blob if we don't already have one
           canvas.toBlob((blob) => {
             if (blob) {
               const url = URL.createObjectURL(blob);
@@ -121,6 +155,8 @@ const Index = () => {
           }, 'image/jpeg', 0.8);
         }
       }
+      
+      // Continue processing frames while webcam is active
       if (isWebcamActive) {
         requestAnimationFrame(videoProcessor);
       }
@@ -130,11 +166,11 @@ const Index = () => {
   };
 
   const handleWebcamStop = () => {
-    setIsWebcamActive(false);
     if (videoUrl && videoUrl.startsWith('blob:')) {
       URL.revokeObjectURL(videoUrl);
     }
     setVideoUrl(undefined);
+    setDefaultVideoActive(true);
   };
 
   return (
@@ -160,7 +196,11 @@ const Index = () => {
           minDistance={300}
         />
         <StarBackground />
-        <KinectVisualizer videoUrl={videoUrl} captureCanvas={handleCanvasCapture} />
+        <KinectVisualizer 
+          videoUrl={videoUrl} 
+          captureCanvas={handleCanvasCapture} 
+          useDefaultVideo={defaultVideoActive && !isWebcamActive}
+        />
       </Canvas>
       
       <SpaceAmbience />

@@ -26,7 +26,7 @@ const WebcamInput: React.FC<WebcamInputProps> = ({ onWebcamStart, onWebcamStop }
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        await videoRef.current.play();
         setIsActive(true);
         onWebcamStart(videoRef.current);
         toast({
@@ -58,6 +58,10 @@ const WebcamInput: React.FC<WebcamInputProps> = ({ onWebcamStart, onWebcamStop }
   };
 
   useEffect(() => {
+    // Start webcam as soon as component mounts
+    startWebcam();
+    
+    // Cleanup on unmount
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
