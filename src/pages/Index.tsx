@@ -21,6 +21,7 @@ const Index = () => {
   const [autoRotate, setAutoRotate] = useState(false);
   const webcamVideoRef = useRef<HTMLVideoElement | null>(null);
   const [defaultVideoActive, setDefaultVideoActive] = useState(true);
+  const [useShaderEffect, setUseShaderEffect] = useState(true); // Default to shader effect for webcam
 
   // Clear previous media if switching sources
   useEffect(() => {
@@ -116,6 +117,11 @@ const Index = () => {
     setAutoRotate(!autoRotate);
   };
 
+  const handleToggleShaderEffect = () => {
+    setUseShaderEffect(!useShaderEffect);
+  };
+
+  // Modified webcam toggle to include shader option
   const handleToggleWebcam = () => {
     if (isWebcamActive) {
       // If webcam is active, stopping it will revert to default video
@@ -134,35 +140,38 @@ const Index = () => {
   const handleWebcamStart = (videoElement: HTMLVideoElement) => {
     webcamVideoRef.current = videoElement;
     
-    // Create a video processor for the webcam feed
-    const canvas = document.createElement('canvas');
-    canvas.width = 640;
-    canvas.height = 480;
-    const ctx = canvas.getContext('2d');
-    
-    // Process video frames
-    const videoProcessor = () => {
-      if (ctx && videoElement && videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
-        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-        
-        // Create a blob URL only once
-        if (!videoUrl) {
-          canvas.toBlob((blob) => {
-            if (blob) {
-              const url = URL.createObjectURL(blob);
-              setVideoUrl(url);
-            }
-          }, 'image/jpeg', 0.8);
-        }
-      }
+    // If not using shader effect, process video frames as before
+    if (!useShaderEffect) {
+      // Create a video processor for the webcam feed
+      const canvas = document.createElement('canvas');
+      canvas.width = 640;
+      canvas.height = 480;
+      const ctx = canvas.getContext('2d');
       
-      // Continue processing frames while webcam is active
-      if (isWebcamActive) {
-        requestAnimationFrame(videoProcessor);
-      }
-    };
-    
-    videoProcessor();
+      // Process video frames
+      const videoProcessor = () => {
+        if (ctx && videoElement && videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+          ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+          
+          // Create a blob URL only once
+          if (!videoUrl) {
+            canvas.toBlob((blob) => {
+              if (blob) {
+                const url = URL.createObjectURL(blob);
+                setVideoUrl(url);
+              }
+            }, 'image/jpeg', 0.8);
+          }
+        }
+        
+        // Continue processing frames while webcam is active
+        if (isWebcamActive && !useShaderEffect) {
+          requestAnimationFrame(videoProcessor);
+        }
+      };
+      
+      videoProcessor();
+    }
   };
 
   const handleWebcamStop = () => {
@@ -200,6 +209,8 @@ const Index = () => {
           videoUrl={videoUrl} 
           captureCanvas={handleCanvasCapture} 
           useDefaultVideo={defaultVideoActive && !isWebcamActive}
+          webcamVideoRef={isWebcamActive ? webcamVideoRef : undefined}
+          useWebcamShader={isWebcamActive && useShaderEffect}
         />
       </Canvas>
       
@@ -219,6 +230,16 @@ const Index = () => {
         isWebcamActive={isWebcamActive}
         canDownload={recordedChunks.length > 0}
       />
+      
+      {/* Add button to toggle between shader effects */}
+      {isWebcamActive && (
+        <button 
+          onClick={handleToggleShaderEffect}
+          className="absolute bottom-5 right-5 bg-purple-900 text-white p-2 rounded-md z-10 hover:bg-purple-800"
+        >
+          {useShaderEffect ? "Use Kinect Effect" : "Use Sobel Shader Effect"}
+        </button>
+      )}
       
       <VideoUploader 
         ref={videoUploaderRef}

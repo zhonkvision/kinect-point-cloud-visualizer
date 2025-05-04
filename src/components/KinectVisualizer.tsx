@@ -1,8 +1,8 @@
-
 import { useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GUI } from 'lil-gui';
+import WebcamShaderEffect from './WebcamShaderEffect';
 
 const vertexShader = `
   uniform sampler2D map;
@@ -65,9 +65,17 @@ interface KinectVisualizerProps {
   videoUrl?: string;
   captureCanvas?: (canvas: HTMLCanvasElement | null) => void;
   useDefaultVideo?: boolean;
+  webcamVideoRef?: React.RefObject<HTMLVideoElement>;
+  useWebcamShader?: boolean;
 }
 
-const KinectVisualizer = ({ videoUrl, captureCanvas, useDefaultVideo = true }: KinectVisualizerProps) => {
+const KinectVisualizer = ({ 
+  videoUrl, 
+  captureCanvas, 
+  useDefaultVideo = true, 
+  webcamVideoRef,
+  useWebcamShader = false
+}: KinectVisualizerProps) => {
   const pointsRef = useRef<THREE.Points>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -90,6 +98,8 @@ const KinectVisualizer = ({ videoUrl, captureCanvas, useDefaultVideo = true }: K
 
   // Create a GUI panel for adjusting effects
   useEffect(() => {
+    if (useWebcamShader) return; // Skip GUI for webcam shader mode
+    
     const gui = new GUI();
     gui.add(uniforms.nearClipping, 'value', 1, 10000, 1.0).name('nearClipping');
     gui.add(uniforms.farClipping, 'value', 1, 10000, 1.0).name('farClipping');
@@ -105,7 +115,7 @@ const KinectVisualizer = ({ videoUrl, captureCanvas, useDefaultVideo = true }: K
     return () => {
       gui.destroy();
     };
-  }, [uniforms]);
+  }, [uniforms, useWebcamShader]);
 
   // Create or get video element when needed
   const getOrCreateVideoElement = () => {
@@ -122,6 +132,9 @@ const KinectVisualizer = ({ videoUrl, captureCanvas, useDefaultVideo = true }: K
 
   // Handle video source changes
   useEffect(() => {
+    // Skip for webcam shader mode
+    if (useWebcamShader) return;
+    
     // First cleanup any existing video texture
     if (textureRef.current) {
       textureRef.current.dispose();
@@ -175,7 +188,7 @@ const KinectVisualizer = ({ videoUrl, captureCanvas, useDefaultVideo = true }: K
         videoRef.current.pause();
       }
     };
-  }, [videoUrl, useDefaultVideo, uniforms.map]);
+  }, [videoUrl, useDefaultVideo, uniforms.map, useWebcamShader]);
 
   // Pass the WebGL canvas to the parent component for video capture
   useFrame((state) => {
@@ -185,7 +198,7 @@ const KinectVisualizer = ({ videoUrl, captureCanvas, useDefaultVideo = true }: K
     }
     
     // For webcam input, we need to ensure texture updates every frame
-    if (textureRef.current && videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
+    if (!useWebcamShader && textureRef.current && videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
       textureRef.current.needsUpdate = true;
     }
   });
@@ -203,6 +216,12 @@ const KinectVisualizer = ({ videoUrl, captureCanvas, useDefaultVideo = true }: K
     return vertices;
   };
 
+  // If we're using the webcam with the shader effect
+  if (useWebcamShader && webcamVideoRef) {
+    return <WebcamShaderEffect webcamVideoRef={webcamVideoRef} />;
+  }
+
+  // Otherwise use the original Kinect point cloud effect
   return (
     <points ref={pointsRef}>
       <bufferGeometry>

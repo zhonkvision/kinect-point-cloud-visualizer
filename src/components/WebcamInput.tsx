@@ -24,16 +24,35 @@ const WebcamInput: React.FC<WebcamInputProps> = ({ onWebcamStart, onWebcamStop }
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
       
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        setIsActive(true);
-        onWebcamStart(videoRef.current);
-        toast({
-          title: "Webcam started",
-          description: "Webcam feed is now being processed with Kinect effect",
-        });
+      if (!videoRef.current) {
+        videoRef.current = document.createElement('video');
+        videoRef.current.playsInline = true;
+        videoRef.current.muted = true;
+        videoRef.current.autoplay = true;
       }
+      
+      videoRef.current.srcObject = stream;
+      
+      // Wait for video to be ready
+      await new Promise<void>((resolve) => {
+        if (!videoRef.current) return;
+        
+        const handleCanPlay = () => {
+          videoRef.current?.removeEventListener('canplay', handleCanPlay);
+          resolve();
+        };
+        
+        videoRef.current.addEventListener('canplay', handleCanPlay);
+      });
+      
+      await videoRef.current.play();
+      setIsActive(true);
+      onWebcamStart(videoRef.current);
+      
+      toast({
+        title: "Webcam started",
+        description: "Webcam feed is now being processed with shader effects",
+      });
     } catch (error) {
       console.error("Error accessing webcam:", error);
       toast({
@@ -48,8 +67,14 @@ const WebcamInput: React.FC<WebcamInputProps> = ({ onWebcamStart, onWebcamStop }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+      
       setIsActive(false);
       onWebcamStop();
+      
       toast({
         title: "Webcam stopped",
         description: "Webcam feed has been disconnected",
@@ -69,14 +94,9 @@ const WebcamInput: React.FC<WebcamInputProps> = ({ onWebcamStart, onWebcamStop }
     };
   }, []);
 
-  return (
-    <video 
-      ref={videoRef}
-      className="hidden"
-      playsInline
-      muted
-    />
-  );
+  // No need to render the video element in the DOM
+  // as we're using it directly with Three.js
+  return null;
 };
 
 export default WebcamInput;
