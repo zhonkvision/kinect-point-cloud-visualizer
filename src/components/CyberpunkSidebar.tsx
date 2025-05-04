@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Upload, Video, Download, RotateCcw, Webcam } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 
 interface CyberpunkSidebarProps {
@@ -31,7 +30,6 @@ const CyberpunkSidebar: React.FC<CyberpunkSidebarProps> = ({
   canDownload
 }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const [intensity, setIntensity] = useState([50]);
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
@@ -59,22 +57,6 @@ const CyberpunkSidebar: React.FC<CyberpunkSidebarProps> = ({
       </div>
 
       <div className="flex-1 flex flex-col gap-4 p-4 overflow-y-auto">
-        {!collapsed && (
-          <div className="space-y-2">
-            <label className="text-xs text-cyan-400 uppercase tracking-wider">Effect Intensity</label>
-            <div className="py-2">
-              <Slider 
-                value={intensity} 
-                onValueChange={setIntensity} 
-                className="cyberpunk-slider" 
-                max={100} 
-                step={1}
-              />
-              <div className="text-center text-sm text-cyan-400 mt-1">{intensity[0]}%</div>
-            </div>
-          </div>
-        )}
-
         <div className={cn("space-y-3 mt-4", collapsed ? "items-center flex flex-col" : "")}>
           <Button
             variant="outline"
