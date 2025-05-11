@@ -7,7 +7,6 @@ import SpaceAmbience from '../components/SpaceAmbience';
 import VideoUploader, { VideoUploaderHandle } from '../components/VideoUploader';
 import WebcamInput from '../components/WebcamInput';
 import CyberpunkSidebar from '../components/CyberpunkSidebar';
-import AsciiTitle from '../components/AsciiTitle';
 import { Toaster } from "@/components/ui/toaster";
 
 const Index = () => {
