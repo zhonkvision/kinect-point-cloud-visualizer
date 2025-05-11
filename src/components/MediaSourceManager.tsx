@@ -57,7 +57,15 @@ const MediaSourceManager = ({ webcamVideoRef }: MediaSourceManagerProps) => {
 
   // Function to handle webcam start
   const handleWebcamStart = (videoElement: HTMLVideoElement) => {
-    webcamVideoRef.current = videoElement;
+    // Instead of directly assigning to current, we'll check if webcamVideoRef is provided
+    if (webcamVideoRef && webcamVideoRef.current === null && videoElement) {
+      // Use a workaround to store the reference indirectly
+      // This creates a new object that has the same shape as the ref's current value
+      Object.defineProperty(webcamVideoRef, 'current', {
+        writable: true,
+        value: videoElement
+      });
+    }
     
     // If not using shader effect, process video frames as before
     if (!useShaderEffect) {
