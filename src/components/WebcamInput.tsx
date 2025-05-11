@@ -47,7 +47,11 @@ const WebcamInput: React.FC<WebcamInputProps> = ({ onWebcamStart, onWebcamStop }
       
       await videoRef.current.play();
       setIsActive(true);
-      onWebcamStart(videoRef.current);
+      
+      // Pass the video element directly rather than trying to modify the ref
+      if (videoRef.current) {
+        onWebcamStart(videoRef.current);
+      }
       
       toast({
         title: "Webcam started",
@@ -95,7 +99,6 @@ const WebcamInput: React.FC<WebcamInputProps> = ({ onWebcamStart, onWebcamStop }
   }, []);
 
   // No need to render the video element in the DOM
-  // as we're using it directly with Three.js
   return null;
 };
 
