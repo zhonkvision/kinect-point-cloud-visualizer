@@ -38,144 +38,143 @@ const CyberpunkSidebar: React.FC<CyberpunkSidebarProps> = ({
   return (
     <div 
       className={cn(
-        "fixed left-0 top-0 h-full bg-black/80 backdrop-blur-sm transition-all duration-300 z-20 flex flex-col",
-        collapsed ? "w-16" : "w-64"
+        "fixed left-0 top-0 h-full backdrop-blur-md transition-all duration-300 z-20 flex flex-col",
+        collapsed 
+          ? "w-16 bg-black/70 border-r border-cyan-500/20" 
+          : "w-56 bg-black/70 border-r border-cyan-500/20"
       )}
+      style={{
+        boxShadow: '0 0 15px rgba(0, 255, 255, 0.2)'
+      }}
     >
-      <div className="flex justify-between items-center p-4 border-b border-purple-500/30">
-        <div className={cn("text-cyan-400 font-mono font-bold", collapsed ? "hidden" : "block")}>
-          ZHONK PANEL
+      <div className="flex justify-between items-center p-3 border-b border-cyan-500/30 backdrop-blur-md">
+        <div className={cn("text-cyan-400 font-mono font-bold tracking-wider text-sm", collapsed ? "hidden" : "block")}>
+          ZHONK VISION
         </div>
         <Button 
           variant="ghost" 
-          size="icon" 
+          size="sm" 
           className="text-cyan-400 hover:text-cyan-300 hover:bg-purple-900/20" 
           onClick={toggleSidebar}
         >
-          {collapsed ? <ChevronRight /> : <ChevronLeft />}
+          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </Button>
       </div>
 
-      <div className="flex-1 flex flex-col gap-4 p-4 overflow-y-auto">
-        <div className={cn("space-y-3 mt-4", collapsed ? "items-center flex flex-col" : "")}>
+      <div className="flex-1 flex flex-col gap-3 p-3 overflow-y-auto">
+        <div className={cn("space-y-2", collapsed ? "items-center flex flex-col" : "")}>
           <Button
             variant="outline"
+            size="sm"
             className={cn(
-              "w-full border-cyan-500/50 bg-purple-900/20 text-cyan-300 hover:bg-cyan-900/30 hover:text-cyan-100",
+              "w-full border-cyan-500/30 bg-black/50 text-cyan-300 hover:bg-cyan-900/30 hover:text-cyan-100 transition-all duration-200",
               collapsed ? "justify-center p-2" : ""
             )}
             onClick={onUploadClick}
           >
-            <Upload size={collapsed ? 24 : 18} />
-            {!collapsed && <span className="ml-2">Upload Video</span>}
+            <Upload size={collapsed ? 18 : 16} />
+            {!collapsed && <span className="ml-2 text-xs">UPLOAD VIDEO</span>}
           </Button>
           
           {isWebcamActive ? (
             <Button
               variant="outline"
+              size="sm"
               className={cn(
-                "w-full border-red-500/50 bg-red-900/20 text-red-300 hover:bg-red-900/30 hover:text-red-100",
+                "w-full border-red-500/30 bg-red-900/20 text-red-300 hover:bg-red-900/30 hover:text-red-100 transition-all duration-200",
                 collapsed ? "justify-center p-2" : ""
               )}
               onClick={onToggleWebcam}
             >
-              <Webcam size={collapsed ? 24 : 18} />
-              {!collapsed && <span className="ml-2">Stop Webcam</span>}
+              <Webcam size={collapsed ? 18 : 16} />
+              {!collapsed && <span className="ml-2 text-xs">STOP WEBCAM</span>}
             </Button>
           ) : (
             <Button
               variant="outline"
+              size="sm"
               className={cn(
-                "w-full border-green-500/50 bg-purple-900/20 text-green-300 hover:bg-green-900/30 hover:text-green-100",
+                "w-full border-green-500/30 bg-black/50 text-green-300 hover:bg-green-900/30 hover:text-green-100 transition-all duration-200",
                 collapsed ? "justify-center p-2" : ""
               )}
               onClick={onToggleWebcam}
             >
-              <Webcam size={collapsed ? 24 : 18} />
-              {!collapsed && <span className="ml-2">Start Webcam</span>}
+              <Webcam size={collapsed ? 18 : 16} />
+              {!collapsed && <span className="ml-2 text-xs">START WEBCAM</span>}
             </Button>
           )}
           
           {!isRecording ? (
             <Button
               variant="outline"
+              size="sm"
               className={cn(
-                "w-full border-cyan-500/50 bg-purple-900/20 text-cyan-300 hover:bg-cyan-900/30 hover:text-cyan-100",
+                "w-full border-cyan-500/30 bg-black/50 text-cyan-300 hover:bg-cyan-900/30 hover:text-cyan-100 transition-all duration-200",
                 collapsed ? "justify-center p-2" : ""
               )}
               onClick={onRecordClick}
             >
-              <Video size={collapsed ? 24 : 18} />
-              {!collapsed && <span className="ml-2">Record Output</span>}
+              <Video size={collapsed ? 18 : 16} />
+              {!collapsed && <span className="ml-2 text-xs">RECORD OUTPUT</span>}
             </Button>
           ) : (
             <Button
               variant="outline"
+              size="sm"
               className={cn(
-                "w-full border-red-500/50 bg-red-900/20 text-red-300 hover:bg-red-900/30 hover:text-red-100",
+                "w-full border-red-500/30 bg-red-900/20 text-red-300 hover:bg-red-900/30 hover:text-red-100 transition-all duration-200",
                 collapsed ? "justify-center p-2" : ""
               )}
               onClick={onStopRecordClick}
             >
-              <Video size={collapsed ? 24 : 18} />
-              {!collapsed && <span className="ml-2">Stop Recording</span>}
+              <Video size={collapsed ? 18 : 16} />
+              {!collapsed && <span className="ml-2 text-xs">STOP RECORDING</span>}
             </Button>
           )}
           
           <Button
             variant="outline"
+            size="sm"
             className={cn(
-              "w-full border-cyan-500/50 bg-purple-900/20 text-cyan-300 hover:bg-cyan-900/30 hover:text-cyan-100",
+              "w-full border-cyan-500/30 bg-black/50 text-cyan-300 hover:bg-cyan-900/30 hover:text-cyan-100 transition-all duration-200",
               collapsed ? "justify-center p-2" : "",
               !canDownload ? "opacity-50 cursor-not-allowed" : ""
             )}
             onClick={onDownloadClick}
             disabled={!canDownload}
           >
-            <Download size={collapsed ? 24 : 18} />
-            {!collapsed && <span className="ml-2">Download Video</span>}
+            <Download size={collapsed ? 18 : 16} />
+            {!collapsed && <span className="ml-2 text-xs">DOWNLOAD VIDEO</span>}
           </Button>
           
           {!isAutoRotating ? (
             <Button
               variant="outline"
+              size="sm"
               className={cn(
-                "w-full border-cyan-500/50 bg-purple-900/20 text-cyan-300 hover:bg-cyan-900/30 hover:text-cyan-100",
+                "w-full border-cyan-500/30 bg-black/50 text-cyan-300 hover:bg-cyan-900/30 hover:text-cyan-100 transition-all duration-200",
                 collapsed ? "justify-center p-2" : ""
               )}
               onClick={onToggleAutoRotate}
             >
-              <RotateCcw size={collapsed ? 24 : 18} />
-              {!collapsed && <span className="ml-2">Auto-Rotate</span>}
+              <RotateCcw size={collapsed ? 18 : 16} />
+              {!collapsed && <span className="ml-2 text-xs">AUTO-ROTATE</span>}
             </Button>
           ) : (
             <Button
               variant="outline"
+              size="sm"
               className={cn(
-                "w-full border-orange-500/50 bg-orange-900/20 text-orange-300 hover:bg-orange-900/30 hover:text-orange-100",
+                "w-full border-orange-500/30 bg-orange-900/20 text-orange-300 hover:bg-orange-900/30 hover:text-orange-100 transition-all duration-200",
                 collapsed ? "justify-center p-2" : ""
               )}
               onClick={onToggleAutoRotate}
             >
-              <RotateCcw size={collapsed ? 24 : 18} />
-              {!collapsed && <span className="ml-2">Stop Rotation</span>}
+              <RotateCcw size={collapsed ? 18 : 16} />
+              {!collapsed && <span className="ml-2 text-xs">STOP ROTATION</span>}
             </Button>
           )}
         </div>
-      </div>
-
-      <div className="p-4 border-t border-purple-500/30">
-        <a 
-          href="https://threejs.org" 
-          target="_blank" 
-          rel="noopener" 
-          className={cn(
-            "text-xs text-cyan-400 hover:text-cyan-300 transition-colors", 
-            collapsed ? "hidden" : "block"
-          )}
-        >
-          powered by three.js
-        </a>
       </div>
     </div>
   );

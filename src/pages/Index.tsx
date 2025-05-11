@@ -216,8 +216,6 @@ const Index = () => {
       
       <SpaceAmbience />
       
-      <AsciiTitle />
-      
       <CyberpunkSidebar 
         onUploadClick={handleTriggerFileUpload}
         onRecordClick={handleStartRecording}
@@ -235,9 +233,9 @@ const Index = () => {
       {isWebcamActive && (
         <button 
           onClick={handleToggleShaderEffect}
-          className="absolute bottom-5 right-5 bg-purple-900 text-white p-2 rounded-md z-10 hover:bg-purple-800"
+          className="absolute bottom-5 right-5 bg-black/70 border border-cyan-500/30 text-cyan-300 px-3 py-2 rounded-md z-10 hover:bg-cyan-900/20 text-xs"
         >
-          {useShaderEffect ? "Use Kinect Effect" : "Use Sobel Shader Effect"}
+          {useShaderEffect ? "USE KINECT EFFECT" : "USE SOBEL SHADER EFFECT"}
         </button>
       )}
       
