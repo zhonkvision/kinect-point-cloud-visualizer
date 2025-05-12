@@ -2,13 +2,15 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { useState, useRef, useEffect } from 'react';
-import KinectVisualizer from '../components/KinectVisualizer';
+import KinectVisualizer, { VisualizerControls } from '../components/KinectVisualizer';
 import StarBackground from '../components/StarBackground';
 import SpaceAmbience from '../components/SpaceAmbience';
 import VideoUploader, { VideoUploaderHandle } from '../components/VideoUploader';
 import WebcamInput from '../components/WebcamInput';
 import CyberpunkSidebar from '../components/CyberpunkSidebar';
 import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/components/ui/use-toast";
+import * as THREE from 'three';
 
 const Index = () => {
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
@@ -22,6 +24,18 @@ const Index = () => {
   const webcamVideoRef = useRef<HTMLVideoElement | null>(null);
   const [defaultVideoActive, setDefaultVideoActive] = useState(true);
   const [useShaderEffect, setUseShaderEffect] = useState(true); // Default to shader effect for webcam
+  const { toast } = useToast();
+  
+  // Visualizer controls state
+  const [controls, setControls] = useState<VisualizerControls>({
+    nearClipping: 850,
+    farClipping: 4000,
+    pointSize: 2,
+    zOffset: 1000,
+    opacity: 0.2,
+    hueShift: 0,
+    colorTint: new THREE.Color(1, 1, 1)
+  });
 
   // Clear previous media if switching sources
   useEffect(() => {
@@ -61,6 +75,11 @@ const Index = () => {
 
   const handleStartRecording = () => {
     if (!canvasRef.current) {
+      toast({
+        title: "Recording Error",
+        description: "Cannot start recording, canvas not initialized",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -78,12 +97,25 @@ const Index = () => {
 
       mediaRecorderRef.current.onstop = () => {
         setIsRecording(false);
+        toast({
+          title: "Recording Complete",
+          description: "Your video is ready to download",
+        });
       };
       
       mediaRecorderRef.current.start();
       setIsRecording(true);
+      toast({
+        title: "Recording Started",
+        description: "Capturing your visualization"
+      });
     } catch (error) {
       console.error("Error starting recording:", error);
+      toast({
+        title: "Recording Error",
+        description: "Failed to start recording",
+        variant: "destructive"
+      });
     }
   };
 
@@ -95,6 +127,11 @@ const Index = () => {
 
   const handleDownloadVideo = () => {
     if (recordedChunks.length === 0) {
+      toast({
+        title: "Download Error",
+        description: "No recorded video available to download",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -108,8 +145,17 @@ const Index = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      toast({
+        title: "Download Started",
+        description: "Your video is being downloaded"
+      });
     } catch (error) {
       console.error("Error downloading video:", error);
+      toast({
+        title: "Download Error",
+        description: "Failed to download video",
+        variant: "destructive"
+      });
     }
   };
 
@@ -119,6 +165,19 @@ const Index = () => {
 
   const handleToggleShaderEffect = () => {
     setUseShaderEffect(!useShaderEffect);
+  };
+
+  // Handle control parameter changes
+  const handleControlChange = (controlName: string, value: number) => {
+    setControls(prev => ({
+      ...prev,
+      [controlName]: value
+    }));
+  };
+
+  // Handle controls update from visualizer
+  const handleControlsUpdate = (newControls: VisualizerControls) => {
+    setControls(newControls);
   };
 
   // Modified webcam toggle to include shader option
@@ -211,6 +270,8 @@ const Index = () => {
           useDefaultVideo={defaultVideoActive && !isWebcamActive}
           webcamVideoRef={isWebcamActive ? webcamVideoRef : undefined}
           useWebcamShader={isWebcamActive && useShaderEffect}
+          controlValues={controls}
+          onControlsUpdate={handleControlsUpdate}
         />
       </Canvas>
       
@@ -223,21 +284,15 @@ const Index = () => {
         onDownloadClick={handleDownloadVideo}
         onToggleAutoRotate={handleToggleAutoRotate}
         onToggleWebcam={handleToggleWebcam}
+        onToggleShaderEffect={handleToggleShaderEffect}
+        onControlsChange={handleControlChange}
         isRecording={isRecording}
         isAutoRotating={autoRotate}
         isWebcamActive={isWebcamActive}
+        useShaderEffect={useShaderEffect}
         canDownload={recordedChunks.length > 0}
+        controls={controls}
       />
-      
-      {/* Add button to toggle between shader effects */}
-      {isWebcamActive && (
-        <button 
-          onClick={handleToggleShaderEffect}
-          className="absolute bottom-5 right-5 bg-black/70 border border-cyan-500/30 text-cyan-300 px-3 py-2 rounded-md z-10 hover:bg-cyan-900/20 text-xs"
-        >
-          {useShaderEffect ? "USE KINECT EFFECT" : "USE SOBEL SHADER EFFECT"}
-        </button>
-      )}
       
       <VideoUploader 
         ref={videoUploaderRef}

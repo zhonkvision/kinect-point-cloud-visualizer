@@ -1,7 +1,7 @@
+
 import { useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { GUI } from 'lil-gui';
 import WebcamShaderEffect from './WebcamShaderEffect';
 
 const vertexShader = `
@@ -61,12 +61,24 @@ const fragmentShader = `
   }
 `;
 
-interface KinectVisualizerProps {
+export interface VisualizerControls {
+  nearClipping: number;
+  farClipping: number;
+  pointSize: number;
+  zOffset: number;
+  opacity: number;
+  hueShift: number;
+  colorTint: THREE.Color;
+}
+
+export interface KinectVisualizerProps {
   videoUrl?: string;
   captureCanvas?: (canvas: HTMLCanvasElement | null) => void;
   useDefaultVideo?: boolean;
   webcamVideoRef?: React.RefObject<HTMLVideoElement>;
   useWebcamShader?: boolean;
+  onControlsUpdate?: (controls: VisualizerControls) => void;
+  controlValues?: Partial<VisualizerControls>;
 }
 
 const KinectVisualizer = ({ 
@@ -74,7 +86,9 @@ const KinectVisualizer = ({
   captureCanvas, 
   useDefaultVideo = true, 
   webcamVideoRef,
-  useWebcamShader = false
+  useWebcamShader = false,
+  onControlsUpdate,
+  controlValues = {}
 }: KinectVisualizerProps) => {
   const pointsRef = useRef<THREE.Points>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -82,40 +96,54 @@ const KinectVisualizer = ({
   const textureRef = useRef<THREE.VideoTexture | null>(null);
   const defaultVideoURL = 'https://bczcghpwiasggfmutqrd.supabase.co/storage/v1/object/public/pointcloudexp//AD_00002.mp4';
   const [videoLoaded, setVideoLoaded] = useState(false);
-  
+
   const [uniforms] = useState({
     map: { value: null },
     width: { value: 640 },
     height: { value: 480 },
-    nearClipping: { value: 850 },
-    farClipping: { value: 4000 },
-    pointSize: { value: 2 },
-    zOffset: { value: 1000 },
-    colorTint: { value: new THREE.Color(1, 1, 1) },
-    opacity: { value: 0.2 },
-    hueShift: { value: 0 }
+    nearClipping: { value: controlValues.nearClipping ?? 850 },
+    farClipping: { value: controlValues.farClipping ?? 4000 },
+    pointSize: { value: controlValues.pointSize ?? 2 },
+    zOffset: { value: controlValues.zOffset ?? 1000 },
+    colorTint: { value: controlValues.colorTint ?? new THREE.Color(1, 1, 1) },
+    opacity: { value: controlValues.opacity ?? 0.2 },
+    hueShift: { value: controlValues.hueShift ?? 0 }
   });
 
-  // Create a GUI panel for adjusting effects
+  // Update uniforms when control values change
   useEffect(() => {
-    if (useWebcamShader) return; // Skip GUI for webcam shader mode
-    
-    const gui = new GUI();
-    gui.add(uniforms.nearClipping, 'value', 1, 10000, 1.0).name('nearClipping');
-    gui.add(uniforms.farClipping, 'value', 1, 10000, 1.0).name('farClipping');
-    gui.add(uniforms.pointSize, 'value', 1, 10, 1.0).name('pointSize');
-    gui.add(uniforms.zOffset, 'value', 0, 4000, 1.0).name('zOffset');
-    gui.add(uniforms.opacity, 'value', 0, 1, 0.01).name('opacity');
-    gui.add(uniforms.hueShift, 'value', 0, 1, 0.01).name('hueShift');
-    gui.addColor({ color: '#ffffff' }, 'color')
-      .onChange(value => {
-        uniforms.colorTint.value.setStyle(value);
-      });
+    if (controlValues.nearClipping !== undefined) uniforms.nearClipping.value = controlValues.nearClipping;
+    if (controlValues.farClipping !== undefined) uniforms.farClipping.value = controlValues.farClipping;
+    if (controlValues.pointSize !== undefined) uniforms.pointSize.value = controlValues.pointSize;
+    if (controlValues.zOffset !== undefined) uniforms.zOffset.value = controlValues.zOffset;
+    if (controlValues.opacity !== undefined) uniforms.opacity.value = controlValues.opacity;
+    if (controlValues.hueShift !== undefined) uniforms.hueShift.value = controlValues.hueShift;
+    if (controlValues.colorTint) uniforms.colorTint.value = controlValues.colorTint;
+  }, [controlValues, uniforms]);
 
-    return () => {
-      gui.destroy();
-    };
-  }, [uniforms, useWebcamShader]);
+  // Notify parent of current control values
+  useEffect(() => {
+    if (onControlsUpdate) {
+      onControlsUpdate({
+        nearClipping: uniforms.nearClipping.value,
+        farClipping: uniforms.farClipping.value,
+        pointSize: uniforms.pointSize.value,
+        zOffset: uniforms.zOffset.value,
+        opacity: uniforms.opacity.value,
+        hueShift: uniforms.hueShift.value,
+        colorTint: uniforms.colorTint.value
+      });
+    }
+  }, [
+    uniforms.nearClipping.value,
+    uniforms.farClipping.value,
+    uniforms.pointSize.value,
+    uniforms.zOffset.value,
+    uniforms.opacity.value,
+    uniforms.hueShift.value,
+    uniforms.colorTint.value,
+    onControlsUpdate
+  ]);
 
   // Create or get video element when needed
   const getOrCreateVideoElement = () => {
@@ -188,7 +216,7 @@ const KinectVisualizer = ({
         videoRef.current.pause();
       }
     };
-  }, [videoUrl, useDefaultVideo, uniforms.map, useWebcamShader]);
+  }, [videoUrl, useDefaultVideo, uniforms.map, useWebcamShader, defaultVideoURL]);
 
   // Pass the WebGL canvas to the parent component for video capture
   useFrame((state) => {
