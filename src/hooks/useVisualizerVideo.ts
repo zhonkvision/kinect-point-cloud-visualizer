@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { VideoUploaderHandle } from '../components/VideoUploader';
 import { useToast } from "@/components/ui/use-toast";
@@ -15,6 +16,7 @@ export function useVisualizerVideo() {
   const [isWebcamActive, setIsWebcamActive] = useState<boolean>(false);
   const [defaultVideoActive, setDefaultVideoActive] = useState(true);
   const [useShaderEffect, setUseShaderEffect] = useState(true); // Default to shader effect for webcam
+  const [mirrorView, setMirrorView] = useState(false); // New state for mirror view
   const webcamVideoRef = useRef<HTMLVideoElement | null>(null);
   const videoUploaderRef = useRef<VideoUploaderHandle>(null);
   const { toast } = useToast();
@@ -70,6 +72,10 @@ export function useVisualizerVideo() {
     setUseShaderEffect(!useShaderEffect);
   };
 
+  const handleToggleMirrorView = () => {
+    setMirrorView(!mirrorView);
+  };
+
   const handleWebcamStart = (videoElement: HTMLVideoElement) => {
     webcamVideoRef.current = videoElement;
     
@@ -123,11 +129,13 @@ export function useVisualizerVideo() {
       useShaderEffect,
       webcamVideoRef,
     },
+    mirrorView,
     videoUploaderRef,
     handleVideoChange,
     handleTriggerFileUpload,
     handleToggleWebcam,
     handleToggleShaderEffect,
+    handleToggleMirrorView,
     handleWebcamStart,
     handleWebcamStop,
     setUseShaderEffect

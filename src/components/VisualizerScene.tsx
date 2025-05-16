@@ -10,6 +10,7 @@ interface VisualizerSceneProps {
   videoState: VideoState;
   autoRotate: boolean;
   controls: VisualizerControls;
+  mirrorView: boolean;
   onCanvasCapture: (canvas: HTMLCanvasElement | null) => void;
   onControlsUpdate: (controls: VisualizerControls) => void;
 }
@@ -18,6 +19,7 @@ const VisualizerScene = ({
   videoState,
   autoRotate,
   controls,
+  mirrorView,
   onCanvasCapture,
   onControlsUpdate
 }: VisualizerSceneProps) => {
@@ -48,6 +50,7 @@ const VisualizerScene = ({
         useDefaultVideo={defaultVideoActive && !isWebcamActive}
         webcamVideoRef={isWebcamActive ? webcamVideoRef : undefined}
         useWebcamShader={isWebcamActive && useShaderEffect}
+        mirrorView={mirrorView}
         controlValues={controls}
         onControlsUpdate={onControlsUpdate}
       />

@@ -30,10 +30,10 @@ const VisualizationControls: React.FC<VisualizationControlsProps> = ({
   return (
     <DraggablePanel
       id="visualization-controls"
-      title="VISUALIZATION PARAMETERS"
+      title="PARAMETERS"
       icon={<SlidersVertical size={16} className="text-cyan-500" />}
       defaultPosition={{ x: 20, y: 300 }}
-      defaultSize={{ width: 300, height: 'auto' }}
+      defaultSize={{ width: 300, height: "auto" }}
     >
       <div className="space-y-5">
         {controlItems.map((item) => (

@@ -20,11 +20,13 @@ const Index = () => {
   // Use custom hooks for functionality
   const {
     videoState,
+    mirrorView,
     videoUploaderRef,
     handleVideoChange,
     handleTriggerFileUpload,
     handleToggleWebcam,
     handleToggleShaderEffect,
+    handleToggleMirrorView,
     handleWebcamStart,
     handleWebcamStop,
   } = useVisualizerVideo();
@@ -67,6 +69,7 @@ const Index = () => {
         videoState={videoState}
         autoRotate={autoRotate}
         controls={controls}
+        mirrorView={mirrorView}
         onCanvasCapture={handleCanvasCapture}
         onControlsUpdate={handleControlsUpdate}
       />
@@ -89,9 +92,11 @@ const Index = () => {
       <CameraControls
         onToggleAutoRotate={handleToggleAutoRotate}
         onToggleShaderEffect={handleToggleShaderEffect}
+        onToggleMirrorView={handleToggleMirrorView}
         isAutoRotating={autoRotate}
         isWebcamActive={videoState.isWebcamActive}
         useShaderEffect={videoState.useShaderEffect}
+        isMirroredView={mirrorView}
         visible={controlsVisible}
       />
       

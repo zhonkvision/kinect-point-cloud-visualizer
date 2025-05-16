@@ -6,11 +6,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { X, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+interface Position {
+  x: number;
+  y: number;
+}
+
+interface Size {
+  width: number | string;
+  height: number | string;
+}
+
 export interface DraggablePanelProps {
   title: string;
   icon?: React.ReactNode;
-  defaultPosition?: { x: number; y: number };
-  defaultSize?: { width: number; height: number };
+  defaultPosition?: Position;
+  defaultSize?: Size;
   className?: string;
   contentClassName?: string;
   children: React.ReactNode;
@@ -32,8 +42,8 @@ export function DraggablePanel({
   id,
 }: DraggablePanelProps) {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
-  const [position, setPosition] = React.useState(defaultPosition);
-  const [size, setSize] = React.useState(defaultSize);
+  const [position, setPosition] = React.useState<Position>(defaultPosition);
+  const [size, setSize] = React.useState<Size>(defaultSize);
 
   // Save panel position and state to localStorage
   React.useEffect(() => {
@@ -46,12 +56,12 @@ export function DraggablePanel({
     if (savedCollapsed) setIsCollapsed(savedCollapsed === 'true');
   }, [id]);
 
-  const savePosition = (newPosition: { x: number, y: number }) => {
+  const savePosition = (newPosition: Position) => {
     setPosition(newPosition);
     localStorage.setItem(`panel-${id}-position`, JSON.stringify(newPosition));
   };
 
-  const saveSize = (newSize: { width: number | string, height: number | string }) => {
+  const saveSize = (newSize: Size) => {
     setSize(newSize);
     localStorage.setItem(`panel-${id}-size`, JSON.stringify(newSize));
   };

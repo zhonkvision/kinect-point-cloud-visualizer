@@ -35,7 +35,7 @@ const InputOutputControls: React.FC<InputOutputControlsProps> = ({
       title="INPUT/OUTPUT"
       icon={<Video size={16} className="text-cyan-500" />}
       defaultPosition={{ x: 20, y: 20 }}
-      defaultSize={{ width: 300, height: 'auto' }}
+      defaultSize={{ width: 300, height: "auto" }}
     >
       <div className="space-y-3">
         <Button

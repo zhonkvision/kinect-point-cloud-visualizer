@@ -6,6 +6,7 @@ import * as THREE from 'three';
 export function useVisualizerControls() {
   const [autoRotate, setAutoRotate] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(false);
+  const [mirrorView, setMirrorView] = useState(false);
   
   // Visualizer controls state
   const [controls, setControls] = useState<VisualizerControls>({
@@ -39,6 +40,11 @@ export function useVisualizerControls() {
       if (savedAutoRotate) {
         setAutoRotate(savedAutoRotate === 'true');
       }
+      
+      const savedMirrorView = localStorage.getItem('visualizer-mirror-view');
+      if (savedMirrorView) {
+        setMirrorView(savedMirrorView === 'true');
+      }
 
     } catch (error) {
       console.error('Error restoring saved controls:', error);
@@ -67,9 +73,18 @@ export function useVisualizerControls() {
   useEffect(() => {
     localStorage.setItem('visualizer-auto-rotate', String(autoRotate));
   }, [autoRotate]);
+  
+  // Save mirror-view state
+  useEffect(() => {
+    localStorage.setItem('visualizer-mirror-view', String(mirrorView));
+  }, [mirrorView]);
 
   const handleToggleAutoRotate = () => {
     setAutoRotate(!autoRotate);
+  };
+  
+  const handleToggleMirrorView = () => {
+    setMirrorView(!mirrorView);
   };
 
   const handleToggleControls = () => {
@@ -91,9 +106,11 @@ export function useVisualizerControls() {
 
   return {
     autoRotate,
+    mirrorView,
     controlsVisible,
     controls,
     handleToggleAutoRotate,
+    handleToggleMirrorView,
     handleToggleControls,
     handleControlChange,
     handleControlsUpdate
