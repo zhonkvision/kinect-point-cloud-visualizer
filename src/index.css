@@ -124,17 +124,19 @@
 
 @layer components {
   .cyberpunk-slider {
-    .slider-track {
-      @apply h-2 bg-purple-900/30;
-    }
-    
-    .slider-range {
-      @apply bg-cyan-500 shadow-[0_0_8px_rgba(0,255,255,0.8)];
-    }
-    
-    .slider-thumb {
-      @apply h-5 w-5 bg-cyan-300 border-2 border-cyan-500 rounded-full shadow-[0_0_10px_rgba(0,255,255,0.8)];
-    }
+    @apply h-2;
+  }
+  
+  .cyberpunk-slider [data-radix-slider-thumb] {
+    @apply h-4 w-4 bg-cyan-300 border border-cyan-500 rounded-full shadow-[0_0_5px_rgba(0,255,255,0.7)];
+  }
+
+  .cyberpunk-slider [data-radix-slider-range] {
+    @apply bg-cyan-500 shadow-[0_0_4px_rgba(0,255,255,0.7)];
+  }
+
+  .cyberpunk-slider [data-radix-slider-track] {
+    @apply h-1 bg-cyan-950/40;
   }
   
   .text-glow {
@@ -144,15 +146,25 @@
   .border-glow {
     box-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
   }
-}
 
-/* Custom styling for the slider component */
-.cyberpunk-slider [data-radix-slider-thumb] {
-  @apply bg-cyan-300 border-2 border-cyan-500 shadow-[0_0_10px_rgba(0,255,255,0.8)];
-}
+  /* Animation for panel transitions */
+  .panel-fade-in {
+    animation: panelFadeIn 0.3s ease forwards;
+  }
 
-.cyberpunk-slider [data-radix-slider-range] {
-  @apply bg-cyan-500 shadow-[0_0_8px_rgba(0,255,255,0.8)];
+  .panel-fade-out {
+    animation: panelFadeOut 0.3s ease forwards;
+  }
+
+  @keyframes panelFadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes panelFadeOut {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.95); }
+  }
 }
 
 canvas {
@@ -178,7 +190,7 @@ canvas {
 .scanline {
   position: absolute;
   width: 100%;
-  height: 4px;
+  height: 2px;
   background: rgba(0, 255, 255, 0.1);
   opacity: 0.3;
   z-index: 999;
@@ -188,7 +200,7 @@ canvas {
 
 /* Customize the scrollbar for a cyberpunk feel */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -197,9 +209,28 @@ canvas {
 
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 255, 255, 0.3);
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 255, 255, 0.5);
+}
+
+/* Apply transitions to the draggable elements */
+.react-draggable {
+  transition: box-shadow 0.3s ease;
+}
+
+.react-draggable:hover {
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+}
+
+.react-draggable-dragging {
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5) !important;
+  z-index: 100;
+}
+
+/* Make the panels look a bit more minimalistic */
+.react-draggable .card {
+  @apply border-[1px];
 }

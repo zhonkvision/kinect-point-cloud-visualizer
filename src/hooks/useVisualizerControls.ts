@@ -1,11 +1,11 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { VisualizerControls } from '../components/KinectVisualizer';
 import * as THREE from 'three';
 
 export function useVisualizerControls() {
   const [autoRotate, setAutoRotate] = useState(false);
-  const [navOpen, setNavOpen] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(false);
   
   // Visualizer controls state
   const [controls, setControls] = useState<VisualizerControls>({
@@ -18,12 +18,62 @@ export function useVisualizerControls() {
     colorTint: new THREE.Color(1, 1, 1)
   });
 
+  // Try to restore saved controls from localStorage
+  useEffect(() => {
+    try {
+      const savedControls = localStorage.getItem('visualizer-controls');
+      if (savedControls) {
+        const parsedControls = JSON.parse(savedControls);
+        // Recreate the THREE.Color object as it doesn't survive JSON serialization
+        if (parsedControls.colorTint) {
+          parsedControls.colorTint = new THREE.Color(
+            parsedControls.colorTint.r, 
+            parsedControls.colorTint.g, 
+            parsedControls.colorTint.b
+          );
+        }
+        setControls(parsedControls);
+      }
+      
+      const savedAutoRotate = localStorage.getItem('visualizer-auto-rotate');
+      if (savedAutoRotate) {
+        setAutoRotate(savedAutoRotate === 'true');
+      }
+
+    } catch (error) {
+      console.error('Error restoring saved controls:', error);
+    }
+  }, []);
+
+  // Save controls to localStorage when they change
+  useEffect(() => {
+    try {
+      const controlsToSave = {
+        ...controls,
+        // THREE.Color needs special handling for serialization
+        colorTint: {
+          r: controls.colorTint.r,
+          g: controls.colorTint.g,
+          b: controls.colorTint.b
+        }
+      };
+      localStorage.setItem('visualizer-controls', JSON.stringify(controlsToSave));
+    } catch (error) {
+      console.error('Error saving controls:', error);
+    }
+  }, [controls]);
+
+  // Save auto-rotate state
+  useEffect(() => {
+    localStorage.setItem('visualizer-auto-rotate', String(autoRotate));
+  }, [autoRotate]);
+
   const handleToggleAutoRotate = () => {
     setAutoRotate(!autoRotate);
   };
 
-  const handleToggleNav = () => {
-    setNavOpen(!navOpen);
+  const handleToggleControls = () => {
+    setControlsVisible(!controlsVisible);
   };
 
   // Handle control parameter changes
@@ -41,10 +91,10 @@ export function useVisualizerControls() {
 
   return {
     autoRotate,
-    navOpen,
+    controlsVisible,
     controls,
     handleToggleAutoRotate,
-    handleToggleNav,
+    handleToggleControls,
     handleControlChange,
     handleControlsUpdate
   };

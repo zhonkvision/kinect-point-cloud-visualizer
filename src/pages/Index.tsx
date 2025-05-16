@@ -1,16 +1,22 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SpaceAmbience from '../components/SpaceAmbience';
 import VideoUploader from '../components/VideoUploader';
 import WebcamInput from '../components/WebcamInput';
-import CyberpunkNav from '../components/CyberpunkNav';
 import VisualizerScene from '../components/VisualizerScene';
 import { Toaster } from "@/components/ui/toaster";
 import { useVisualizerVideo } from '../hooks/useVisualizerVideo';
 import { useCanvasRecorder } from '../hooks/useCanvasRecorder';
 import { useVisualizerControls } from '../hooks/useVisualizerControls';
+import InputOutputControls from '../components/InputOutputControls';
+import CameraControls from '../components/CameraControls';
+import VisualizationControls from '../components/VisualizationControls';
+import ControlToggler from '../components/ControlToggler';
+import { useToast } from '@/components/ui/use-toast';
 
 const Index = () => {
+  const { toast } = useToast();
+  
   // Use custom hooks for functionality
   const {
     videoState,
@@ -35,13 +41,22 @@ const Index = () => {
   
   const {
     autoRotate,
-    navOpen,
+    controlsVisible,
     controls,
     handleToggleAutoRotate,
-    handleToggleNav,
+    handleToggleControls,
     handleControlChange,
     handleControlsUpdate
   } = useVisualizerControls();
+
+  // Show welcome toast when the page loads
+  useEffect(() => {
+    toast({
+      title: "Welcome to ZHONK VISION",
+      description: "Drag panels to reposition them. Click the menu icon to show/hide panels.",
+      duration: 5000,
+    });
+  }, [toast]);
 
   return (
     <div className="w-full h-screen bg-black overflow-hidden relative">
@@ -57,24 +72,39 @@ const Index = () => {
       />
       
       <SpaceAmbience />
-      
-      <CyberpunkNav
-        isOpen={navOpen}
-        onToggle={handleToggleNav}
+
+      {/* Draggable Control Panels */}
+      <InputOutputControls
         onUploadClick={handleTriggerFileUpload}
         onRecordClick={handleStartRecording}
         onStopRecordClick={handleStopRecording}
         onDownloadClick={handleDownloadVideo}
-        onToggleAutoRotate={handleToggleAutoRotate}
         onToggleWebcam={handleToggleWebcam}
-        onToggleShaderEffect={handleToggleShaderEffect}
-        onControlsChange={handleControlChange}
         isRecording={isRecording}
+        isWebcamActive={videoState.isWebcamActive}
+        canDownload={recordedChunks.length > 0}
+        visible={controlsVisible}
+      />
+      
+      <CameraControls
+        onToggleAutoRotate={handleToggleAutoRotate}
+        onToggleShaderEffect={handleToggleShaderEffect}
         isAutoRotating={autoRotate}
         isWebcamActive={videoState.isWebcamActive}
         useShaderEffect={videoState.useShaderEffect}
-        canDownload={recordedChunks.length > 0}
+        visible={controlsVisible}
+      />
+      
+      <VisualizationControls
         controls={controls}
+        onControlsChange={handleControlChange}
+        visible={controlsVisible}
+      />
+
+      {/* Control Toggle Button */}
+      <ControlToggler 
+        isOpen={controlsVisible} 
+        onClick={handleToggleControls} 
       />
       
       <VideoUploader 
