@@ -5,6 +5,7 @@ import * as THREE from 'three';
 
 export function useVisualizerControls() {
   const [autoRotate, setAutoRotate] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
   
   // Visualizer controls state
   const [controls, setControls] = useState<VisualizerControls>({
@@ -19,6 +20,10 @@ export function useVisualizerControls() {
 
   const handleToggleAutoRotate = () => {
     setAutoRotate(!autoRotate);
+  };
+
+  const handleToggleNav = () => {
+    setNavOpen(!navOpen);
   };
 
   // Handle control parameter changes
@@ -36,8 +41,10 @@ export function useVisualizerControls() {
 
   return {
     autoRotate,
+    navOpen,
     controls,
     handleToggleAutoRotate,
+    handleToggleNav,
     handleControlChange,
     handleControlsUpdate
   };

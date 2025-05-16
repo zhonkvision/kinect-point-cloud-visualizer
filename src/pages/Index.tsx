@@ -3,7 +3,7 @@ import { useState } from 'react';
 import SpaceAmbience from '../components/SpaceAmbience';
 import VideoUploader from '../components/VideoUploader';
 import WebcamInput from '../components/WebcamInput';
-import CyberpunkSidebar from '../components/CyberpunkSidebar';
+import CyberpunkNav from '../components/CyberpunkNav';
 import VisualizerScene from '../components/VisualizerScene';
 import { Toaster } from "@/components/ui/toaster";
 import { useVisualizerVideo } from '../hooks/useVisualizerVideo';
@@ -35,8 +35,10 @@ const Index = () => {
   
   const {
     autoRotate,
+    navOpen,
     controls,
     handleToggleAutoRotate,
+    handleToggleNav,
     handleControlChange,
     handleControlsUpdate
   } = useVisualizerControls();
@@ -56,7 +58,9 @@ const Index = () => {
       
       <SpaceAmbience />
       
-      <CyberpunkSidebar 
+      <CyberpunkNav
+        isOpen={navOpen}
+        onToggle={handleToggleNav}
         onUploadClick={handleTriggerFileUpload}
         onRecordClick={handleStartRecording}
         onStopRecordClick={handleStopRecording}
