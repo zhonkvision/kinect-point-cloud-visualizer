@@ -101,14 +101,14 @@ export function DraggablePanel({
     >
       <Card 
         className={cn(
-          "w-full h-full overflow-hidden border border-cyan-500/30 bg-black/80 shadow-[0_0_10px_rgba(0,255,255,0.2)] text-cyan-300",
+          "w-full h-full overflow-hidden border border-cyan-500/20 bg-black/85 backdrop-blur-sm shadow-[0_8px_32px_rgba(0,255,255,0.1)] text-cyan-300 transition-all duration-200",
           className
         )}
       >
-        <CardHeader className="bg-cyan-950/40 px-4 py-2 flex flex-row items-center space-y-0 cursor-move">
+        <CardHeader className="bg-gradient-to-r from-cyan-950/60 to-cyan-900/40 px-3 py-2 flex flex-row items-center space-y-0 cursor-move border-b border-cyan-500/10">
           <div className="flex items-center gap-2 flex-1">
-            {icon && <span className="text-cyan-500">{icon}</span>}
-            <CardTitle className="text-cyan-400 font-mono text-sm font-bold tracking-wider uppercase">
+            {icon && <span className="text-cyan-400">{icon}</span>}
+            <CardTitle className="text-cyan-300 font-medium text-xs font-sans tracking-wider uppercase">
               {title}
             </CardTitle>
           </div>
@@ -117,13 +117,13 @@ export function DraggablePanel({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/50"
+                className="h-5 w-5 p-0 text-cyan-400/70 hover:text-cyan-300 hover:bg-cyan-950/30 transition-all duration-200"
                 onClick={toggleCollapse}
               >
                 {isCollapsed ? (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-3 w-3" />
                 ) : (
-                  <ChevronUp className="h-4 w-4" />
+                  <ChevronUp className="h-3 w-3" />
                 )}
               </Button>
             )}
@@ -131,10 +131,10 @@ export function DraggablePanel({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0 text-cyan-400 hover:text-red-300 hover:bg-red-950/50"
+                className="h-5 w-5 p-0 text-cyan-400/70 hover:text-red-300 hover:bg-red-950/30 transition-all duration-200"
                 onClick={onClose}
               >
-                <X className="h-4 w-4" />
+                <X className="h-3 w-3" />
               </Button>
             )}
           </div>
@@ -142,7 +142,7 @@ export function DraggablePanel({
         {!isCollapsed && (
           <CardContent 
             className={cn(
-              "p-3 overflow-y-auto max-h-[calc(100%-40px)]",
+              "p-3 overflow-y-auto max-h-[calc(100%-40px)] bg-black/20",
               contentClassName
             )}
           >

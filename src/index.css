@@ -99,10 +99,11 @@
     margin: 0;
     background-color: #000;
     color: #fff;
-    font-family: Monospace;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     font-size: 13px;
     line-height: 24px;
     overscroll-behavior: none;
+    font-weight: 400;
   }
 
   a {
@@ -123,20 +124,37 @@
 }
 
 @layer components {
-  .cyberpunk-slider {
-    @apply h-2;
+  .professional-slider {
+    @apply h-1;
   }
   
-  .cyberpunk-slider [data-radix-slider-thumb] {
-    @apply h-4 w-4 bg-cyan-300 border border-cyan-500 rounded-full shadow-[0_0_5px_rgba(0,255,255,0.7)];
+  .professional-slider [data-radix-slider-thumb] {
+    @apply h-3 w-3 bg-cyan-300 border border-cyan-400 rounded-full;
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .cyberpunk-slider [data-radix-slider-range] {
-    @apply bg-cyan-500 shadow-[0_0_4px_rgba(0,255,255,0.7)];
+  .professional-slider [data-radix-slider-thumb]:hover {
+    @apply scale-110;
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.8);
   }
 
-  .cyberpunk-slider [data-radix-slider-track] {
-    @apply h-1 bg-cyan-950/40;
+  .professional-slider [data-radix-slider-thumb]:active {
+    @apply scale-95;
+  }
+
+  .professional-slider [data-radix-slider-range] {
+    @apply bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full;
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+  }
+
+  .professional-slider [data-radix-slider-track] {
+    @apply h-1 bg-cyan-950/40 border border-cyan-800/30 rounded-full;
+    transition: border-color 0.2s ease;
+  }
+
+  .professional-slider:hover [data-radix-slider-track] {
+    @apply border-cyan-600/50;
   }
   
   .text-glow {
@@ -147,23 +165,35 @@
     box-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
   }
 
-  /* Animation for panel transitions */
+  /* Enhanced panel styling */
   .panel-fade-in {
-    animation: panelFadeIn 0.3s ease forwards;
+    animation: panelFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
   .panel-fade-out {
-    animation: panelFadeOut 0.3s ease forwards;
+    animation: panelFadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
   @keyframes panelFadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    from { 
+      opacity: 0; 
+      transform: scale(0.95) translateY(10px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: scale(1) translateY(0); 
+    }
   }
 
   @keyframes panelFadeOut {
-    from { opacity: 1; transform: scale(1); }
-    to { opacity: 0; transform: scale(0.95); }
+    from { 
+      opacity: 1; 
+      transform: scale(1) translateY(0); 
+    }
+    to { 
+      opacity: 0; 
+      transform: scale(0.95) translateY(10px); 
+    }
   }
 }
 
@@ -198,39 +228,43 @@ canvas {
   pointer-events: none;
 }
 
-/* Customize the scrollbar for a cyberpunk feel */
+/* Professional scrollbar styling */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 255, 0.3);
-  border-radius: 2px;
+  background: rgba(6, 182, 212, 0.4);
+  border-radius: 3px;
+  transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 255, 255, 0.5);
+  background: rgba(6, 182, 212, 0.6);
 }
 
-/* Apply transitions to the draggable elements */
+/* Enhanced draggable panel styling */
 .react-draggable {
-  transition: box-shadow 0.3s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .react-draggable:hover {
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 255, 255, 0.15);
 }
 
 .react-draggable-dragging {
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5) !important;
+  box-shadow: 0 12px 40px rgba(0, 255, 255, 0.25) !important;
   z-index: 100;
+  transform: scale(1.02);
 }
 
-/* Make the panels look a bit more minimalistic */
+/* Professional panel borders */
 .react-draggable .card {
-  @apply border-[1px];
+  @apply border border-cyan-500/20 backdrop-blur-sm;
+  background: rgba(0, 0, 0, 0.85);
 }
