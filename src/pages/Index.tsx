@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import SpaceAmbience from '../components/SpaceAmbience';
 import VideoUploader from '../components/VideoUploader';
@@ -13,6 +12,7 @@ import CameraControls from '../components/CameraControls';
 import VisualizationControls from '../components/VisualizationControls';
 import ControlToggler from '../components/ControlToggler';
 import { useToast } from '@/components/ui/use-toast';
+import ShaderMirrorControls from '../components/ShaderMirrorControls';
 
 const Index = () => {
   const { toast } = useToast();
@@ -91,13 +91,17 @@ const Index = () => {
       
       <CameraControls
         onToggleAutoRotate={handleToggleAutoRotate}
+        isAutoRotating={autoRotate}
+        visible={controlsVisible}
+      />
+
+      <ShaderMirrorControls
         onToggleShaderEffect={handleToggleShaderEffect}
         onToggleMirrorView={handleToggleMirrorView}
-        isAutoRotating={autoRotate}
-        isWebcamActive={videoState.isWebcamActive}
         useShaderEffect={videoState.useShaderEffect}
         isMirroredView={mirrorView}
         visible={controlsVisible}
+        isVideoActive={videoState.isWebcamActive || !!videoState.videoUrl}
       />
       
       <VisualizationControls
