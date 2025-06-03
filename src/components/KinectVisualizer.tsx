@@ -76,6 +76,7 @@ export interface KinectVisualizerProps {
   useDefaultVideo?: boolean;
   webcamVideoRef?: React.RefObject<HTMLVideoElement>;
   useWebcamShader?: boolean;
+  mirrorView?: boolean;
   onControlsUpdate?: (controls: VisualizerControls) => void;
   controlValues?: Partial<VisualizerControls>;
 }
@@ -86,6 +87,7 @@ const KinectVisualizer = ({
   useDefaultVideo = true, 
   webcamVideoRef,
   useWebcamShader = false,
+  mirrorView = false,
   onControlsUpdate,
   controlValues = {}
 }: KinectVisualizerProps) => {
