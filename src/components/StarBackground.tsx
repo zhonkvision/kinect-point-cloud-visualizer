@@ -1,3 +1,4 @@
+
 import { useRef, useMemo } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
@@ -62,24 +63,22 @@ const StarBackground = () => {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={10000}
-          array={positions}
-          itemSize={3}
+          args={[positions, 3]}
         />
         <bufferAttribute
           attach="attributes-color"
-          count={10000}
-          array={colors}
-          itemSize={3}
+          args={[colors, 3]}
         />
       </bufferGeometry>
       <pointsMaterial
-        size={2}
-        vertexColors
-        transparent
-        opacity={0.8}
-        sizeAttenuation={true}
-        blending={THREE.AdditiveBlending}
+        args={[{
+          size: 2,
+          vertexColors: true,
+          transparent: true,
+          opacity: 0.8,
+          sizeAttenuation: true,
+          blending: THREE.AdditiveBlending
+        }]}
       />
     </points>
   );

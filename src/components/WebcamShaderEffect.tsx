@@ -1,3 +1,4 @@
+
 import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
@@ -161,16 +162,18 @@ const WebcamShaderEffect: React.FC<WebcamShaderEffectProps> = ({ webcamVideoRef 
       <planeGeometry args={[2, 2]} />
       <shaderMaterial
         ref={shaderRef}
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        transparent={true}
-        uniforms={{
-          webcamTexture: { value: null },
-          fireTexture: { value: null },
-          timeTexture: { value: null },
-          time: { value: 0 },
-          resolution: { value: new THREE.Vector2(640, 480) }
-        }}
+        args={[{
+          vertexShader,
+          fragmentShader,
+          transparent: true,
+          uniforms: {
+            webcamTexture: { value: null },
+            fireTexture: { value: null },
+            timeTexture: { value: null },
+            time: { value: 0 },
+            resolution: { value: new THREE.Vector2(640, 480) }
+          }
+        }]}
       />
     </mesh>
   );

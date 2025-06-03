@@ -256,19 +256,19 @@ const KinectVisualizer = ({
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={uniforms.width.value * uniforms.height.value}
-          array={createVertices()}
-          itemSize={3}
+          args={[createVertices(), 3]}
         />
       </bufferGeometry>
       <shaderMaterial
-        uniforms={uniforms}
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        blending={THREE.AdditiveBlending}
-        depthTest={false}
-        depthWrite={false}
-        transparent={true}
+        args={[{
+          uniforms,
+          vertexShader,
+          fragmentShader,
+          blending: THREE.AdditiveBlending,
+          depthTest: false,
+          depthWrite: false,
+          transparent: true
+        }]}
       />
     </points>
   );
